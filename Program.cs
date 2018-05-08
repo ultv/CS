@@ -14,7 +14,7 @@ namespace HomeWork1
         class Matrix
         {            
             protected int[,] massiv;
-            protected int num = 3;
+            protected int num = 2;
 
             public int Num
             {
@@ -35,6 +35,7 @@ namespace HomeWork1
 
 
             // Заполняет матрицу значением по умолчанию.
+            // Получает значение разрядности массива.
             public Matrix(int n)
             {
                 num = n;
@@ -83,23 +84,35 @@ namespace HomeWork1
             }
 
             // Читает с консоли индексы вводимого элемента.
+            // Возвращеет массив со значением введённых индексов (пользователь оперирует индексами начинающимися с 1 а не 0). 
             public int[] ReadIndex()
             {
                 Console.WriteLine("Введите номер строки: ");
-                int i = Int32.Parse(Console.ReadLine());
+                int i = Int32.Parse(Console.ReadLine());                
 
                 Console.WriteLine("Введите номер элемента в строке: ");
                 int j = Int32.Parse(Console.ReadLine());
 
-                Console.WriteLine("Введите [" + i + "," + j + "] элемент массива");            
-                massiv[i - 1,j - 1] = Int32.Parse(Console.ReadLine());
+                Console.WriteLine("Введите [" + i + "," + j + "] элемент массива");
+                int val = Int32.Parse(Console.ReadLine());
 
-                int [] x = new int[2] { i - 1, j - 1 };
-                return x;
+                while ((val != 0) && (val != 1))
+                {
+                    Console.WriteLine("Элемент может иметь только одно из значений (0 или 1). Повторите ввод: ");
+                    val = Int32.Parse(Console.ReadLine());
+                }
+
+                massiv[i - 1, j - 1] = val;
+
+                int [] index = new int[2] { i - 1, j - 1 };
+                //int[] index = new int[2] { i, j };
+                return index;
             }
 
 
             // Проверяет элементы строки на равенство первому элементу в строке.
+            // Получает индекс изменённой строки.
+            // Возвращает ложь если значение любого элемента строки не равно значению первого элемента этой строки.            
             public bool ReviseRows(int i)
             {
                 for (int j = 0; j < num; j++)
@@ -112,6 +125,8 @@ namespace HomeWork1
             }
 
             // Проверяет элементы столбца на равенство первому элементу в столбце.
+            // Получает индекс изменённого столбца.
+            // Возвращает ложь если значение любого элемента столбца не равно значению первого элемента этого столбца.            
             public bool ReviseCol(int j)
             {
                 for (int i = 0; i < num; i++)
@@ -126,6 +141,8 @@ namespace HomeWork1
             // Проверяет элементы диагоналей матрицы на равенство первым элементам в каждой диагонали.
             // Если индексы вводимого элемента не равны - побочная диагональ не изменялась,
             // соответственно проверяем только главную диагональ.
+            // Получает индексы введённого элемента.
+            // Возвращает ложь если значение любого элемента диагоналей не равно значению первого элемента этой диагонали.
             public bool ReviseDiag(int rows, int col)
             {
                 if (rows != col)
@@ -158,23 +175,28 @@ namespace HomeWork1
         // Завершает выполнение, если равны значения всех элементов строки, столбца или диагоналей.
         static void Main(string[] args)
         {
-          
+            
             Console.WriteLine("Введите количество элементов массива: ");
             int num = Int32.Parse(Console.ReadLine());
+            if(num < 2)
+            {
+                Console.WriteLine("Размерность матрицы не может быть менее 2. Устанавливаем значение по умолчанию равное 2. ");
+                num = 2;
+            }
 
             Matrix mat = new Matrix(num);
             mat.Print();
             //mat.Read();
 
-            int[] x = new int[2];
+            int[] index = new int[2];
 
             do
             {
-                x = mat.ReadIndex();
+                index = mat.ReadIndex();
 
                 mat.Print();
 
-            } while ((!mat.ReviseRows(x[0])) && (!mat.ReviseCol(x[1])) && (!mat.ReviseDiag(x[0], x[1])));
+            } while ((!mat.ReviseRows(index[0])) && (!mat.ReviseCol(index[1]))); //&& (!mat.ReviseDiag(index[0], index[1])));
 
             Console.WriteLine("Программа успешно завершена.");
            
