@@ -19,20 +19,21 @@ namespace HomeWork1
                 get { return num; }
                 set { num = value; }
             }
-
-            // Принимает значение разрядности матрицы.
-            public void SetNum()
-            {
-                Console.WriteLine("Введите количество элементов массива: ");
-                num = Int32.Parse(Console.ReadLine());
-            }                        
+                                 
         }
 
         
         // Осуществляет все операции над матрицей.
-        class Matrix : User
+        class Matrix
         {            
             protected int[,] massiv;
+            protected int num = 3;
+
+            public int Num
+            {
+                get { return num; }
+                set { num = value; }
+            }
 
             public Matrix()
             {               
@@ -57,6 +58,13 @@ namespace HomeWork1
                     {
                         massiv[i, j] = -1;
                     }
+            }
+
+            // Принимает значение разрядности матрицы.
+            public void SetNum()
+            {
+                Console.WriteLine("Введите количество элементов массива: ");
+                num = Int32.Parse(Console.ReadLine());
             }
 
             // Выводит матрицу на экран.
@@ -95,11 +103,11 @@ namespace HomeWork1
 
         static void Main(string[] args)
         {
+          
+            Console.WriteLine("Введите количество элементов массива: ");
+            int num = Int32.Parse(Console.ReadLine());
 
-            User usr = new User();
-            usr.SetNum();
-
-            Matrix mat = new Matrix(usr.Num);
+            Matrix mat = new Matrix(num);
             mat.Print();
             mat.Read();
             mat.Print();
