@@ -88,10 +88,22 @@ namespace HomeWork1
             public int[] ReadIndex()
             {
                 Console.WriteLine("Введите номер строки: ");
-                int i = Int32.Parse(Console.ReadLine());                
+                int i = Int32.Parse(Console.ReadLine());
+                
+                while((i < 1) || (i > num))
+                {
+                    Console.WriteLine("Номер строки не быть меньше 1 и больше " + num + ". Повторите ввод: ");
+                    i = Int32.Parse(Console.ReadLine());
+                }
 
                 Console.WriteLine("Введите номер элемента в строке: ");
                 int j = Int32.Parse(Console.ReadLine());
+
+                while ((j < 1) || (j > num))
+                {
+                    Console.WriteLine("Номер элемента в стоке  не быть меньше 1 и больше " + num + ". Повторите ввод: ");
+                    j = Int32.Parse(Console.ReadLine());
+                }
 
                 Console.WriteLine("Введите [" + i + "," + j + "] элемент массива");
                 int val = Int32.Parse(Console.ReadLine());
@@ -192,8 +204,7 @@ namespace HomeWork1
             }
 
             Matrix mat = new Matrix(num);
-            mat.Print();
-            //mat.Read();
+            mat.Print();            
 
             int[] index = new int[2];
 
