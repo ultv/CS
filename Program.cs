@@ -39,8 +39,8 @@ namespace HomeWork1
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("\nОчевидно вы ввели символное значение вместо числового.\n" +
-            "Значение элемента не будет изменено.\n" +
-            "Для изменения значения элемента введите его индексы и значение ещё раз.\n" +
+            "Значение элемента не было изменено.\n" +
+            "Для изменения значения элемента введите значение ещё раз.\n" +
             "Используйте только числовые значения для работы с программой.\n");
             Console.ForegroundColor = ConsoleColor.Gray;
         }
@@ -266,24 +266,34 @@ namespace HomeWork1
                     }
                 }
 
-                Console.WriteLine("Введите [" + i + "," + j + "] элемент массива");               
+                Console.WriteLine("Введите [" + i + "," + j + "] элемент массива");
+
+                try
+                {
+                    val = Int32.Parse(Console.ReadLine());
+                }
+                catch
+                {
+                    PrintErrorValue();
+                    val = -1;
+                }
+
 
                 while ((val != 0) && (val != 1))
                 {
-                    try
-                    {                        
-                        val = Int32.Parse(Console.ReadLine());
 
-                        if ((val != 0) && (val != 1))
-                        {
-                            PrintErrorMessage("\nЭлемент может иметь только одно из значений (0 или 1).");
-                            PrintErrorMessage("Повторите ввод значения для элемента [" + i + ", " + j + "]: ");
-                        }
+                    if (val != -1)
+                        PrintErrorMessage("Элемент может иметь только одно из значений (0 или 1). Повторите ввод: ");
+                    else
+                        PrintErrorMessage("Повторите ввод значения для элемента [" + i + ", " + j + "]: ");
+
+                    try
+                    {
+                        val = Int32.Parse(Console.ReadLine());
                     }
                     catch
-                    {                        
+                    {
                         PrintErrorValue();
-                        PrintErrorMessage("Повторите ввод значения для элемента [" + i + ", " + j + "]: ");
                         val = -1;
                     }
                 }
