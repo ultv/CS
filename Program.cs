@@ -9,8 +9,10 @@ namespace HomeWork1
 {
     class Program
     {
+        // Используется для передачи сведений в каком элементе матрицы одинаковые значения.
         enum Element {Rows, Col, MainDiag, SecDiag }
 
+        // Выводит сообщение о неправильно введённой размерности массива
         public static void PrintErrorDimension()
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -21,6 +23,7 @@ namespace HomeWork1
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
+        // Выводит сообщение о неправильно введённом индексе массива.
         public static void PrintErrorIndex()
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -31,6 +34,7 @@ namespace HomeWork1
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
+        // Выводит сообщение о неправильно введённом значении элемента массива.
         public static void PrintErrorValue()
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -41,6 +45,7 @@ namespace HomeWork1
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
+        // Выводит сообщения принятые в качестве параметра.
         public static void PrintErrorMessage(string message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
