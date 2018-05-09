@@ -249,54 +249,44 @@ namespace HomeWork1
                 {
                     PrintErrorIndex();
                     j = 1;
-                }
-               
-                while ((j < 1) || (j > num))
-                {                    
-                    PrintErrorMessage("Номер элемента в стоке  не быть меньше 1 и больше " + num + ". Повторите ввод: ");
-                 
-                    try
+
+                    while ((j < 1) || (j > num))
                     {
-                        j = Int32.Parse(Console.ReadLine());
-                    }
-                    catch
-                    {
-                        PrintErrorIndex();
-                        j = 1;
-                    }                    
-                }
+                        PrintErrorMessage("Номер элемента в стоке  не быть меньше 1 и больше " + num + ". Повторите ввод: ");
 
-                Console.WriteLine("Введите [" + i + "," + j + "] элемент массива");
-
-                try
-                {
-                    val = Int32.Parse(Console.ReadLine());
-                }
-                catch
-                {
-                    PrintErrorValue();
-                    val = -1;
-                }
-                
-                
-                    while ((val != 0) && (val != 1))
-                    {
-
-                    if (val != -1)                    
-                        PrintErrorMessage("Элемент может иметь только одно из значений (0 или 1). Повторите ввод: ");
-                    else
-                        PrintErrorMessage("Повторите ввод значения для элемента [" + i + ", " + j + "]: ");
-
-                    try
+                        try
                         {
-                            val = Int32.Parse(Console.ReadLine());
+                            j = Int32.Parse(Console.ReadLine());
                         }
                         catch
                         {
-                            PrintErrorValue();
-                            val = -1;
+                            PrintErrorIndex();
+                            j = 1;
                         }
-                    }                                
+                    }
+                }
+
+                Console.WriteLine("Введите [" + i + "," + j + "] элемент массива");               
+
+                while ((val != 0) && (val != 1))
+                {
+                    try
+                    {                        
+                        val = Int32.Parse(Console.ReadLine());
+
+                        if ((val != 0) && (val != 1))
+                        {
+                            PrintErrorMessage("\nЭлемент может иметь только одно из значений (0 или 1).");
+                            PrintErrorMessage("Повторите ввод значения для элемента [" + i + ", " + j + "]: ");
+                        }
+                    }
+                    catch
+                    {                        
+                        PrintErrorValue();
+                        PrintErrorMessage("Повторите ввод значения для элемента [" + i + ", " + j + "]: ");
+                        val = -1;
+                    }
+                }
 
                 massiv[i - 1, j - 1] = val;
 
