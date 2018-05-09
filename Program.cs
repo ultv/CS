@@ -9,8 +9,10 @@ namespace HomeWork1
 {
     class Program
     {
-        // Используется для передачи сведений в каком элементе матрицы одинаковые значения.
-        enum Element {Rows, Col, MainDiag, SecDiag }
+        // Используется для передачи сведений в каком элементе или элементах матрицы одинаковые значения.
+        enum Element { Rows, Col, MainDiag, SecDiag, RowsCol, RowsMainDiag, RowsSecDiag, ColMainDiag, ColSecDiag, DiagDiag }
+
+
 
         // Выводит сообщение о неправильно введённой размерности массива
         public static void PrintErrorDimension()
@@ -55,7 +57,7 @@ namespace HomeWork1
 
         // Осуществляет все операции над матрицей.
         class Matrix
-        {            
+        {
             protected int[,] massiv;
             protected int num = 2;
 
@@ -64,10 +66,10 @@ namespace HomeWork1
                 get { return num; }
                 set { num = value; }
             }
-            
+
             // Заполняет матрицу при создании.
             public Matrix()
-            {               
+            {
                 massiv = new int[num, num];
 
                 for (int i = 0; i < num; i++)
@@ -115,13 +117,12 @@ namespace HomeWork1
 
                 Console.WriteLine('\n');
             }
-            
+
             // Выводит матрицу на экран c подсветкой заданных элементов матрицы.
-            // Получает индекс строки с одинаковыми элементами
-            // и тип элемента для совершения действий.
-            public void PrintColor(Element el, int index)
+            // Получает массив индексов элемента в пересечении с которым выявлены одинаковые элементы
+            // и тип элемента для требуемого совершения действий.
+            public void PrintColor(Element el, int[] index)
             {
-                
                 Console.WriteLine('\n' + "Массив:" + '\n');
 
                 for (int i = 0; i < num; i++)
@@ -131,13 +132,13 @@ namespace HomeWork1
                         switch (el)
                         {
                             case Element.Rows:
-                                if (i == index)
+                                if (i == index[0])
                                     Console.ForegroundColor = ConsoleColor.Green;
                                 else
                                     Console.ForegroundColor = ConsoleColor.Gray;
                                 break;
                             case Element.Col:
-                                if (j == index)
+                                if (j == index[1])
                                     Console.ForegroundColor = ConsoleColor.Green;
                                 else
                                     Console.ForegroundColor = ConsoleColor.Gray;
@@ -154,10 +155,46 @@ namespace HomeWork1
                                 else
                                     Console.ForegroundColor = ConsoleColor.Gray;
                                 break;
+                            case Element.RowsCol:
+                                if (i == index[0] || j == index[1])
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                else
+                                    Console.ForegroundColor = ConsoleColor.Gray;
+                                break;
+                            case Element.RowsMainDiag:
+                                if (i == index[0] || i == j)
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                else
+                                    Console.ForegroundColor = ConsoleColor.Gray;
+                                break;
+                            case Element.RowsSecDiag:
+                                if (i == index[0] || (j == num - i - 1))
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                else
+                                    Console.ForegroundColor = ConsoleColor.Gray;
+                                break;
+                            case Element.ColMainDiag:
+                                if (j == index[1] || (i == j))
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                else
+                                    Console.ForegroundColor = ConsoleColor.Gray;
+                                break;
+                            case Element.ColSecDiag:
+                                if (j == index[1] || (j == num - i - 1))
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                else
+                                    Console.ForegroundColor = ConsoleColor.Gray;
+                                break;
+                            case Element.DiagDiag:
+                                if (i == j || (j == num - i - 1))
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                else
+                                    Console.ForegroundColor = ConsoleColor.Gray;
+                                break;
                             default:
                                 Console.ForegroundColor = ConsoleColor.Gray;
                                 break;
-                        }                                                
+                        }
 
                         Console.Write(massiv[i, j] + "\t");
                     }
@@ -187,10 +224,10 @@ namespace HomeWork1
                 {
                     PrintErrorIndex();
                     i = 1;
-                }                
-                
-                while((i < 1) || (i > num))
-                {                    
+                }
+
+                while ((i < 1) || (i > num))
+                {
                     PrintErrorMessage("Номер строки не быть меньше 1 и больше " + num + ". Повторите ввод: ");
 
                     try
@@ -201,7 +238,7 @@ namespace HomeWork1
                     {
                         PrintErrorIndex();
                         i = 1;
-                    }                    
+                    }
                 }
 
                 Console.WriteLine("Введите номер элемента в строке: ");
@@ -264,7 +301,7 @@ namespace HomeWork1
 
                 massiv[i - 1, j - 1] = val;
 
-                int [] index = new int[2] { i - 1, j - 1 };                
+                int[] index = new int[2] { i - 1, j - 1 };
                 return index;
             }
 
@@ -276,9 +313,9 @@ namespace HomeWork1
                 for (int j = 0; j < num; j++)
                 {
                     if (massiv[i, j] != massiv[i, 0])
-                        return false;                    
+                        return false;
                 }
-                
+
                 return true;
             }
 
@@ -318,7 +355,7 @@ namespace HomeWork1
                     }
 
                     return true;
-                }                
+                }
             }
 
             // Проверяет элементы побочной диагонали матрицы на равенство первому элементу в диагонали.            
@@ -339,16 +376,23 @@ namespace HomeWork1
 
                 return true;
             }
-        }       
+        }
 
 
 
-        // Присваивает значения элементам матрицы по введенным значениям индексов.
-        // Завершает выполнение, если равны значения всех элементов строки, столбца или диагоналей.
+        // По введённым индексам и значениям элементов присваивает значения элементам матрицы.
+        // Проверяет равенство каждого нового элемента на равенство с элементами в столбцах, строках и диагоналях матрицы.
+        // Если все элементы в строке, столбце или диагонали равны - передаёт значения индексов последнего элемента
+        // и значение типа в котором сформировались элементы равные по значению для вывода на экран.
+        // Строки, столбцы, диагонали (или их комбинация) в которых сформировались равные по значению элементы -
+        // подсвечиваются другим цветом и выполнение программы завершается.        
         static void Main(string[] args)
         {
             int count = 2;
-            bool exit = false;
+            bool exitRows = false;
+            bool exitCol = false;
+            bool exitMainDiag = false;
+            bool exitSecDiag = false;
 
             Console.Title = "С# поток 7. Домашнее задание №1. Выполнил: Седов А.П.";
             Console.WriteLine("\nВведите количество элементов массива: ");
@@ -362,49 +406,88 @@ namespace HomeWork1
                 PrintErrorDimension();
                 count = 2;
             }
-            
-            if(count < 2)
-            {                
-                PrintErrorMessage("Размерность матрицы не может быть менее 2. Будет использовано значение по умолчанию равное 2. ");             
+
+            if (count < 2)
+            {
+                PrintErrorMessage("Размерность матрицы не может быть менее 2. Будет использовано значение по умолчанию равное 2. ");
                 count = 2;
             }
 
             Matrix mat = new Matrix(count);
-            mat.Print();            
+            mat.Print();
 
             int[] index = new int[2];
 
             do
             {
-                index = mat.ReadIndex();                
+                index = mat.ReadIndex();
 
                 if (mat.ReviseRows(index[0]))
-                {
-                    mat.PrintColor(Element.Rows, index[0]);
-                    exit = true;
-                }                    
-                else if (mat.ReviseCol(index[1]))
-                {
-                    mat.PrintColor(Element.Col, index[1]);
-                    exit = true;
-                }                    
-                else if (mat.ReviseMainDiag(index[0], index[1]))
-                {
-                    mat.PrintColor(Element.MainDiag, index[1]);
-                    exit = true;
-                }                    
-                else if (mat.ReviseSecDiag(index[0], index[1]))
-                {
-                    mat.PrintColor(Element.SecDiag, index[1]);
-                    exit = true;
-                }                    
-                else mat.Print();
+                {                  
+                    exitRows = true;
+                }
+                if (mat.ReviseCol(index[1]))
+                {               
+                    exitCol = true;
+                }
+                if (mat.ReviseMainDiag(index[0], index[1]))
+                {                  
+                    exitMainDiag = true;
+                }
+                if (mat.ReviseSecDiag(index[0], index[1]))
+                {                 
+                    exitSecDiag = true;
+                }
+                
+                mat.Print();
 
-            } while (!exit);
+            } while (!exitRows && !exitCol && !exitMainDiag && !exitSecDiag);
 
-            Console.WriteLine("Программа успешно завершена.");
-           
 
+            if (exitRows && exitCol)
+            {
+                mat.PrintColor(Element.RowsCol, index);
+            }
+            else if (exitRows && exitMainDiag)
+            {
+                mat.PrintColor(Element.RowsMainDiag, index);
+            }
+            else if (exitRows && exitSecDiag)
+            {
+                mat.PrintColor(Element.RowsSecDiag, index);
+            }
+            else if (exitCol && exitMainDiag)
+            {
+                mat.PrintColor(Element.ColMainDiag, index);
+            }
+            else if (exitCol && exitSecDiag)
+            {
+                mat.PrintColor(Element.ColSecDiag, index);
+            }
+            else if (exitMainDiag && exitSecDiag)
+            {
+                mat.PrintColor(Element.DiagDiag, index);
+            }
+            else if (exitRows)
+            {
+                mat.PrintColor(Element.Rows, index);
+            }
+            else if (exitCol)
+            {
+                mat.PrintColor(Element.Col, index);
+            }
+            else if (exitMainDiag)
+            {
+                mat.PrintColor(Element.MainDiag, index);
+            }
+            else if (exitSecDiag)
+            {
+                mat.PrintColor(Element.SecDiag, index);
+            }
+            else
+                mat.Print();
+
+            Console.WriteLine("Программа успешно завершена.");          
             Console.ReadKey();
 
         }
