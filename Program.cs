@@ -166,9 +166,17 @@ namespace HomeWork1
                                     Console.ForegroundColor = ConsoleColor.Gray;
                                 break;
                             case Element.MainDiag:
-
+                                if (i == j)
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                else
+                                    Console.ForegroundColor = ConsoleColor.Gray;
                                 break;
                             case Element.SecDiag:
+                                if (j == num - i - 1)
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                else
+                                    Console.ForegroundColor = ConsoleColor.Gray;
+
 
                                 break;
                             default:
@@ -412,6 +420,10 @@ namespace HomeWork1
                     mat.PrintColor(Element.Rows, index[0]);
                 else if (mat.ReviseCol(index[1]))
                     mat.PrintColor(Element.Col, index[1]);
+                else if (mat.ReviseMainDiag(index[0], index[1]))
+                    mat.PrintColor(Element.MainDiag, index[1]);
+                else if (mat.ReviseSecDiag(index[0], index[1]))
+                    mat.PrintColor(Element.SecDiag, index[1]);
                 else mat.Print();
 
             } while ((!mat.ReviseRows(index[0])) && (!mat.ReviseCol(index[1])) && (!mat.ReviseMainDiag(index[0], index[1])) && (!mat.ReviseSecDiag(index[0], index[1])));
