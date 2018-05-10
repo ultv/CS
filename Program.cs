@@ -10,42 +10,7 @@ namespace HomeWork1
     class Program
     {
         // Используется для передачи сведений в каком элементе или элементах матрицы одинаковые значения.
-        enum Element { Rows, Col, MainDiag, SecDiag, RowsCol, RowsMainDiag, RowsSecDiag, ColMainDiag, ColSecDiag, DiagDiag }
-
-
-
-        // Выводит сообщение о неправильно введённой размерности массива
-        public static void PrintErrorDimension()
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\nОчевидно вы ввели символное значение вместо числового.\n" +
-            "В размерности матрицы будет использовано значение по умочанию равное 2.\n" +
-            "Для смены значения закройте приложение и запустите ещё раз.\n" +
-            "Используйте только числовые значения для работы с программой.\n");
-            Console.ForegroundColor = ConsoleColor.Gray;
-        }
-
-        // Выводит сообщение о неправильно введённом индексе массива.
-        public static void PrintErrorIndex()
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\nОчевидно вы ввели символное значение вместо числового.\n" +
-            "Будет использовано значение индекса равное 1.\n" +
-            "Для изменения значения элемента введите его индексы и значение ещё раз.\n" +
-            "Используйте только числовые значения для работы с программой.\n");
-            Console.ForegroundColor = ConsoleColor.Gray;
-        }
-
-        // Выводит сообщение о неправильно введённом значении элемента массива.
-        public static void PrintErrorValue()
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\nОчевидно вы ввели символное значение вместо числового.\n" +
-            "Значение элемента не было изменено.\n" +
-            "Для изменения значения элемента введите значение ещё раз.\n" +
-            "Используйте только числовые значения для работы с программой.\n");
-            Console.ForegroundColor = ConsoleColor.Gray;
-        }
+        enum Element { Rows, Col, MainDiag, SecDiag, RowsCol, RowsMainDiag, RowsSecDiag, ColMainDiag, ColSecDiag, DiagDiag }       
 
         // Выводит сообщения принятые в качестве параметра.
         public static void PrintErrorMessage(string message)
@@ -78,7 +43,6 @@ namespace HomeWork1
                         massiv[i, j] = -1;
                     }
             }
-
 
             // Заполняет матрицу значением по умолчанию.
             // Получает значение разрядности массива.
@@ -210,92 +174,63 @@ namespace HomeWork1
             // Обрабатывает исключения связанные с несоответствием типа введенных данных и выхода индексов за пределы массива.
             public int[] ReadIndex()
             {
-                int i = 1;
-                int j = 1;
+                int i = 0;
+                int j = 0;
                 int val = -1;
 
-                Console.WriteLine("Введите номер строки: ");
-
-                try
-                {
-                    i = Int32.Parse(Console.ReadLine());
-                }
-                catch
-                {
-                    PrintErrorIndex();
-                    i = 1;
-                }
+                Console.WriteLine("Введите номер строки: ");                  
 
                 while ((i < 1) || (i > num))
                 {
-                    PrintErrorMessage("Номер строки не быть меньше 1 и больше " + num + ". Повторите ввод: ");
-
                     try
                     {
                         i = Int32.Parse(Console.ReadLine());
+
+                        if ((i < 1) || (i > num))
+                                PrintErrorMessage("\nНомер должен быть числовым значением в диапазоне от 1 до " + num + ". Повторите ввод: ");
                     }
                     catch
-                    {
-                        PrintErrorIndex();
-                        i = 1;
+                    {                 
+                        PrintErrorMessage("\nНомер должен быть числовым значением в диапазоне от 1 до " + num + ". Повторите ввод: ");
                     }
-                }
+                 
+                }           
 
                 Console.WriteLine("Введите номер элемента в строке: ");
 
-                try
-                {
-                    j = Int32.Parse(Console.ReadLine());
-                }
-                catch
-                {
-                    PrintErrorIndex();
-                    j = 1;
 
-                    while ((j < 1) || (j > num))
-                    {
-                        PrintErrorMessage("Номер элемента в стоке  не быть меньше 1 и больше " + num + ". Повторите ввод: ");
-
-                        try
-                        {
-                            j = Int32.Parse(Console.ReadLine());
-                        }
-                        catch
-                        {
-                            PrintErrorIndex();
-                            j = 1;
-                        }
-                    }
-                }
-
-                Console.WriteLine("Введите [" + i + "," + j + "] элемент массива");
-
-                try
-                {
-                    val = Int32.Parse(Console.ReadLine());
-                }
-                catch
-                {
-                    PrintErrorValue();
-                    val = -1;
-                }
-
-                while ((val != 0) && (val != 1))
-                {
-
-                    if (val != -1)
-                        PrintErrorMessage("Элемент может иметь только одно из значений (0 или 1). Повторите ввод: ");
-                    else
-                        PrintErrorMessage("Повторите ввод значения для элемента [" + i + ", " + j + "]: ");
-
+                while ((j < 1) || (j > num))
+                {                    
                     try
                     {
-                        val = Int32.Parse(Console.ReadLine());
+                        j = Int32.Parse(Console.ReadLine());
+
+                        if ((j < 1) || (j > num))
+                            PrintErrorMessage("\nНомер должен быть числовым значением в диапазоне от 1 до " + num + ". Повторите ввод: ");
                     }
                     catch
                     {
-                        PrintErrorValue();
-                        val = -1;
+                        PrintErrorMessage("\nНомер должен быть числовым значением в диапазоне от 1 до " + num + ". Повторите ввод: ");
+                    }
+                }
+                
+
+                Console.WriteLine("Введите [" + i + "," + j + "] элемент массива");
+
+                while ((val != 0) && (val != 1))
+                {
+                    try
+                    {
+                        val = Int32.Parse(Console.ReadLine());
+                        if((val != 0) && (val != 1))
+                            PrintErrorMessage("Элемент может иметь только одно из числовых значений (0 или 1)." +
+                                "\nПовторите ввод для [" + i + "," + j + "] элемента массива: ");
+                    }
+                    catch
+                    {
+                        PrintErrorMessage("Элемент может иметь только одно из числовых значений (0 или 1)." +
+                                "\nПовторите ввод для [" + i + "," + j + "] элемента массива: ");
+
                     }
                 }
 
@@ -388,7 +323,7 @@ namespace HomeWork1
         // подсвечиваются другим цветом и выполнение программы завершается.        
         static void Main(string[] args)
         {
-            int count = 2;
+            int count = 0;
             bool exitRows = false;
             bool exitCol = false;
             bool exitMainDiag = false;
@@ -397,21 +332,23 @@ namespace HomeWork1
             Console.Title = "С# поток 7. Домашнее задание №1. Выполнил: Седов А.П.";
             Console.WriteLine("\nВведите количество элементов массива: ");
 
-            try
+            while (count < 2)
             {
-                count = Int32.Parse(Console.ReadLine());
+                try
+                {
+                    count = Int32.Parse(Console.ReadLine());
+                    if (count < 2)
+                    {
+                        PrintErrorMessage("\nРазмерность матрицы должна иметь числовое значение не менее 2. Повторите ввод: ");                        
+                    }
+                }
+                catch
+                {
+                    PrintErrorMessage("\nРазмерность матрицы должна иметь числовое значение не менее 2. Повторите ввод: ");                    
+                }
+                
             }
-            catch
-            {
-                PrintErrorDimension();
-                count = 2;
-            }
-
-            if (count < 2)
-            {
-                PrintErrorMessage("Размерность матрицы не может быть менее 2. Будет использовано значение по умолчанию равное 2. ");
-                count = 2;
-            }
+            
 
             Matrix mat = new Matrix(count);
             mat.Print();
