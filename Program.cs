@@ -26,24 +26,6 @@ namespace HomeWork1
             protected int[,] massiv;
             protected int num = 2;
 
-            public int Num
-            {
-                get { return num; }
-                set { num = value; }
-            }
-
-            // Заполняет матрицу при создании.
-            public Matrix()
-            {
-                massiv = new int[num, num];
-
-                for (int i = 0; i < num; i++)
-                    for (int j = 0; j < num; j++)
-                    {
-                        massiv[i, j] = -1;
-                    }
-            }
-
             // Заполняет матрицу значением по умолчанию.
             // Получает значение разрядности массива.
             public Matrix(int n)
@@ -56,14 +38,7 @@ namespace HomeWork1
                     {
                         massiv[i, j] = -1;
                     }
-            }
-
-            // Принимает значение разрядности матрицы.
-            public void SetNum()
-            {
-                Console.WriteLine("Введите количество элементов массива: ");
-                num = Int32.Parse(Console.ReadLine());
-            }
+            } 
 
             // Выводит матрицу на экран.
             public void Print()
