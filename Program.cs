@@ -12,17 +12,30 @@ namespace HomeWork1
 
         class Card
         {
-            protected int val = 0;
+            protected int dignity = 0;
             protected bool inGame = false;
 
-            public int Val { get; set; }
-            public bool InGame { get; set; }
+            public Card(int dign)
+            {
+                dignity = dign;
+            }
+
+            public int Dignity
+            {
+                get { return dignity; }
+                set { dignity = value; }
+            }
+            public bool InGame
+            {
+                get { return inGame; }
+                set { inGame = value; }
+            }
 
             // Выводит карту и значение.
             // Десять выводим как римскую.
-            public void PrintVal(int v)
+            public void PrintDignity()
             {
-                if(v == 10)
+                if(dignity == 10)
                 {
                     Console.WriteLine(" ___");
                     Console.WriteLine("[   ]");
@@ -33,12 +46,13 @@ namespace HomeWork1
                 {
                     Console.WriteLine(" ___");
                     Console.WriteLine("[   ]");
-                    Console.WriteLine("[ " + v + " ]");
+                    Console.WriteLine("[ " + dignity + " ]");
                     Console.WriteLine("[___]");
                 }
 
             }
 
+            // Выводит рубашку карты.
             public void PrintShirt()
             {
                 Console.WriteLine(" ___");
@@ -49,17 +63,51 @@ namespace HomeWork1
             
         }
 
+        class CardDeck : List<Card>
+        {
+            protected int size = 36;
+            public int Size
+            {
+                get { return size; }
+                set { size = value; }
+            }
+
+            // Заполняет созданную колоду картами.
+            // Значения картам - присваиваются случайным образом, в диапазоне от 1 до 10.
+            public CardDeck()
+            {
+                Random rnd = new Random();
+
+                for (int i = 0; i < 36; i++)
+                {
+                    Card cd = new Card(rnd.Next(1,10));
+                    this.Add(cd);          
+                }
+            }
+
+            // Выводит колоду с картами.
+            public void Print()
+            {
+                for(int i = 0; i < 36; i++)
+                {
+                    this[i].PrintDignity();
+                }
+            }
+       
+        }
+
 
 
 
         static void Main(string[] args)
         {
-
-            Card card1 = new Card();
-
-            card1.PrintShirt();
-            card1.PrintVal(1);
-            card1.PrintVal(10);
+    
+            CardDeck deck = new CardDeck();
+     
+            for (int i = 0; i < deck.Size; i++)
+            {
+                deck.Print();
+            }
 
 
             Console.ReadKey();
