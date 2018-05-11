@@ -93,6 +93,34 @@ namespace HomeWork1
                     this[i].PrintDignity();
                 }
             }
+
+            class Gamer : Dictionary<int, string>
+            {
+                protected List<Card> gamerCards;
+                protected int summ = 0;
+
+                public int Summ
+                {
+                    get { return summ; }
+                    set { summ = value; }
+                }
+        
+                // Принимает карту.
+                public void TakenCard(Card card)
+                {
+                    gamerCards.Add(card);
+                    summ = summ + card.Dignity;
+                }
+
+                // Скидывает карту обратно.
+                public Card ThrowCard()
+                {
+                    return gamerCards[0];
+                }
+
+
+
+            }        
        
         }
 
