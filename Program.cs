@@ -113,9 +113,45 @@ namespace HomeWork1
                 }
 
                 // Скидывает карту обратно.
+                // Будет скидывать самые маленькие.
                 public Card ThrowCard()
                 {
-                    return gamerCards[0];
+                    Random rnd = new Random();
+                    if (rnd.Next(0, 1) == 1)
+                    {
+                        // скидываем
+                        return FindMinCard();
+                    }
+                    else
+                        return null;
+
+                    
+                }
+
+                // Возвращает минимальную карту игрока.
+                /// Можно просто sort()
+                public Card FindMinCard()
+                {
+                    int min = gamerCards[0].Dignity;
+                    int minIndex = 0;
+                    int index = 0;
+
+                    foreach (Card cd in gamerCards)
+                    {
+                        if (min > cd.Dignity)
+                        {
+                            min = cd.Dignity;
+                            minIndex = index; 
+                        }
+
+                        index++;
+                    }
+
+                    Card ret = new Card(0);
+                    ret = gamerCards[minIndex];
+                    gamerCards.RemoveAt(minIndex);
+
+                    return ret;
                 }
 
 
@@ -131,8 +167,8 @@ namespace HomeWork1
         {
     
             CardDeck deck = new CardDeck();
-     
-            for (int i = 0; i < deck.Size; i++)
+          
+            foreach (Card cd in deck)
             {
                 deck.Print();
             }
