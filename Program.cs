@@ -63,7 +63,7 @@ namespace HomeWork1
             
         }
 
-        class CardDeck : List<Card>
+        class CardDeck : Queue<Card>
         {
             protected int size = 36;
             public int Size
@@ -81,16 +81,16 @@ namespace HomeWork1
                 for (int i = 0; i < 36; i++)
                 {
                     Card cd = new Card(rnd.Next(1,10));
-                    this.Add(cd);          
+                    this.Enqueue(cd);          
                 }
             }
 
             // Выводит колоду с картами.
             public void Print()
             {
-                for(int i = 0; i < 36; i++)
+                foreach (Card cd in this)
                 {
-                    this[i].PrintDignity();
+                    cd.PrintDignity();
                 }
             }
 
