@@ -95,12 +95,20 @@ namespace HomeWork1
                     cd.PrintDignity();
                 }
             }
+
+            // Принимает карту.
+            public void TakenCard(Card cd)
+            {                
+                Enqueue(cd);
+                Size++;
+            }
         }
 
         class Gamer
         {
             protected List<Card> gamerCards = new List<Card>();
             protected int summ = 0;
+            protected int victory = 0;
 
             public int Summ
             {
@@ -112,6 +120,12 @@ namespace HomeWork1
             {
                 get { return gamerCards; }
                 set { gamerCards = value;  }
+            }
+
+            public int Victory
+            {
+                get { return victory; }
+                set { victory = value; }
             }
         
             // Принимает при раздаче первую карту из колоды.
@@ -195,7 +209,10 @@ namespace HomeWork1
 
         static void Main(string[] args)
         {
-    
+            Console.BufferHeight = 1000;
+
+            bool fullVictory = false;
+
             CardDeck deck = new CardDeck();
             Console.WriteLine("\nВ колоде: " + deck.Size + "карт.");
 
@@ -215,38 +232,84 @@ namespace HomeWork1
             allGamer.Add("Alex", alex);
             allGamer.Add("Dmitry", dmitry);            
 
-            // Раздаём всем игрокам по 6 карт.
-            for (int i = 0; i < 6; i++)
+            while(!fullVictory)
             {
-                foreach(Gamer gamer in allGamer.Values)
+                // --------Раунд -------- //
+                // Раздаём всем игрокам по 6 карт.
+                for (int i = 0; i < 6; i++)
                 {
-                    gamer.TakenCard(deck);
-                }                
-            }
-            
-            // Выводим карты игроков.
-            foreach (Gamer gamer in allGamer.Values)
-            {                
-                string name = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
-                gamer.Info(name);
-            }
+                    foreach (Gamer gamer in allGamer.Values)
+                    {
+                        gamer.TakenCard(deck);
+                    }
+                }
 
-            foreach (Gamer gamer in allGamer.Values)
-            {
-                for (int i = 0; i < gamer.Colution(); i++)
+                // Выводим карты игроков.
+                foreach (Gamer gamer in allGamer.Values)
                 {
-                    Console.WriteLine("\n" + allGamer.FirstOrDefault(x => x.Value == gamer).Key + ":");
-                    deck.Enqueue(gamer.FindMinCard());
-                    gamer.TakenAddCard(deck);
+                    string name = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
+                    gamer.Info(name);
+                }
+
+                foreach (Gamer gamer in allGamer.Values)
+                {
+                    for (int i = 0; i < gamer.Colution(); i++)
+                    {
+                        Console.WriteLine("\n" + allGamer.FirstOrDefault(x => x.Value == gamer).Key + ":");
+                        deck.Enqueue(gamer.FindMinCard());
+                        gamer.TakenAddCard(deck);
+                    }
+                }
+
+                // Выводим карты игроков.
+                foreach (Gamer gamer in allGamer.Values)
+                {
+                    string name = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
+                    gamer.Info(name);
+                }
+
+                // Выбираем победителя.
+                string vic = "";
+                int max = 0;
+                foreach (Gamer gamer in allGamer.Values)
+                {
+                    if (gamer.Summ > max)
+                    {
+                        max = gamer.Summ;
+                        vic = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
+                    }
+                }
+
+                Console.Write("\nРаунд выиграл - " + vic + "!");
+                allGamer[vic].Victory++;
+
+                // --------Раунд закончен ---------- //
+
+                // Вернуть все карты в колоду
+                for (int i = 5; i >= 0; i--)
+                {
+                    foreach (Gamer gamer in allGamer.Values)
+                    {
+                        deck.Enqueue(gamer.GamerCards[i]);
+                        deck.Size++;
+                        gamer.Summ = gamer.Summ - gamer.GamerCards[i].Dignity;
+                        gamer.GamerCards.RemoveAt(i);
+                    }
+                }
+
+                // Проверить общее количество побед.
+                foreach (Gamer gamer in allGamer.Values)
+                {
+                    if (gamer.Victory == 5)
+                    {
+                        fullVictory = true;
+                        Console.WriteLine("\nИгру выиграл - " + allGamer.FirstOrDefault(x => x.Value == gamer).Key + "!!!");
+                    }                        
                 }
             }
+            
 
-            // Выводим карты игроков.
-            foreach (Gamer gamer in allGamer.Values)
-            {
-                string name = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
-                gamer.Info(name);
-            }
+
 
             Console.ReadKey();
         }
