@@ -35,25 +35,31 @@ namespace HomeWork1
             // Десять выводим как римскую.
             public void PrintDignity()
             {
-                if(dignity == 10)
+
+                if (dignity == 10)
                 {
-                    Console.WriteLine(" ___");
-                    Console.WriteLine("[   ]");
-                    Console.WriteLine("[ X ]");
-                    Console.WriteLine("[___]");
+                    Console.Write(" ___");
+                    Console.SetCursorPosition(Console.CursorLeft - 4, Console.CursorTop + 1);
+                    Console.Write("[   ]");
+                    Console.SetCursorPosition(Console.CursorLeft - 5, Console.CursorTop + 1);
+                    Console.Write("[ X ]");
+                    Console.SetCursorPosition(Console.CursorLeft - 5, Console.CursorTop + 1);
+                    Console.Write("[___]");
                 }
                 else
                 {
-                    Console.WriteLine(" ___");
-                    Console.WriteLine("[   ]");
-                    Console.WriteLine("[ " + dignity + " ]");
-                    Console.WriteLine("[___]");
+                    Console.Write(" ___");
+                    Console.SetCursorPosition(Console.CursorLeft - 4, Console.CursorTop + 1);
+                    Console.Write("[   ]");
+                    Console.SetCursorPosition(Console.CursorLeft - 5, Console.CursorTop + 1);
+                    Console.Write("[ " + dignity + " ]");
+                    Console.SetCursorPosition(Console.CursorLeft - 5, Console.CursorTop + 1);
+                    Console.Write("[___]");
                 }
-
             }
 
-            // Выводит рубашку карты.
-            public void PrintShirt()
+                // Выводит рубашку карты.
+                public void PrintShirt()
             {
                 Console.WriteLine(" ___");
                 Console.WriteLine("[   ]");
@@ -81,7 +87,7 @@ namespace HomeWork1
 
                 for (int i = 0; i < maxSize; i++)
                 {
-                    Card cd = new Card(rnd.Next(1, 10));
+                    Card cd = new Card(rnd.Next(1, 11));
                     this.Enqueue(cd);
                     size++;
                 }
@@ -140,7 +146,7 @@ namespace HomeWork1
             public void TakenAddCard(CardDeck deck)
             {
                 summ = summ + deck.Peek().Dignity;
-                Console.WriteLine("\nПринимаю карту: ");
+                Console.WriteLine("\nПринимаю карту: ");                
                 deck.Peek().PrintDignity();
                 gamerCards.Add(deck.Dequeue());
                 deck.Size--;
@@ -176,7 +182,7 @@ namespace HomeWork1
                 Card ret = new Card(0);
                 ret = gamerCards[minIndex];
                 summ = summ - ret.Dignity;
-                Console.WriteLine("\nСкидываю карту:");
+                Console.WriteLine("\nСкидываю карту:");                
                 ret.PrintDignity();
                 gamerCards.RemoveAt(minIndex);
 
@@ -190,8 +196,12 @@ namespace HomeWork1
                 foreach (Card cd in this.GamerCards)
                 {
                     cd.PrintDignity();
+                    Console.SetCursorPosition(Console.CursorLeft + 3, Console.CursorTop - 3);
                 }
-               
+                Console.WriteLine("\n");
+                Console.WriteLine("\n");
+                //  Console.SetCursorPosition(Console.WindowLeft, Console.CursorTop + 2);
+
             }
 
         }
