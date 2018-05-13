@@ -65,7 +65,8 @@ namespace HomeWork1
 
         class CardDeck : Queue<Card>
         {
-            protected int size = 36;
+            protected int size = 0;
+            protected int maxSize = 36;
             public int Size
             {
                 get { return size; }
@@ -78,10 +79,11 @@ namespace HomeWork1
             {
                 Random rnd = new Random();
 
-                for (int i = 0; i < 36; i++)
+                for (int i = 0; i < maxSize; i++)
                 {
-                    Card cd = new Card(rnd.Next(1,10));
-                    this.Enqueue(cd);          
+                    Card cd = new Card(rnd.Next(1, 10));
+                    this.Enqueue(cd);
+                    size++;
                 }
             }
 
@@ -93,72 +95,101 @@ namespace HomeWork1
                     cd.PrintDignity();
                 }
             }
-
-            class Gamer : Dictionary<int, string>
-            {
-                protected List<Card> gamerCards;
-                protected int summ = 0;
-
-                public int Summ
-                {
-                    get { return summ; }
-                    set { summ = value; }
-                }
-        
-                // Принимает карту.
-                public void TakenCard(Card card)
-                {
-                    gamerCards.Add(card);
-                    summ = summ + card.Dignity;
-                }
-
-                // Скидывает карту обратно.
-                // Будет скидывать самые маленькие.
-                public Card ThrowCard()
-                {
-                    Random rnd = new Random();
-                    if (rnd.Next(0, 1) == 1)
-                    {
-                        // скидываем
-                        return FindMinCard();
-                    }
-                    else
-                        return null;
-
-                    
-                }
-
-                // Возвращает минимальную карту игрока.
-                /// Можно просто sort()
-                public Card FindMinCard()
-                {
-                    int min = gamerCards[0].Dignity;
-                    int minIndex = 0;
-                    int index = 0;
-
-                    foreach (Card cd in gamerCards)
-                    {
-                        if (min > cd.Dignity)
-                        {
-                            min = cd.Dignity;
-                            minIndex = index; 
-                        }
-
-                        index++;
-                    }
-
-                    Card ret = new Card(0);
-                    ret = gamerCards[minIndex];
-                    gamerCards.RemoveAt(minIndex);
-
-                    return ret;
-                }
-
-
-
-            }        
-       
         }
+
+        class Gamer
+        {
+            protected List<Card> gamerCards = new List<Card>();
+            protected int summ = 0;
+
+            public int Summ
+            {
+                get { return summ; }
+                set { summ = value; }
+            }
+
+            public List<Card> GamerCards
+            {
+                get { return gamerCards; }
+                set { gamerCards = value;  }
+            }
+        
+            // Принимает при раздаче первую карту из колоды.
+            public void TakenCard(CardDeck deck)
+            {
+                summ = summ + deck.Peek().Dignity;              
+                gamerCards.Add(deck.Dequeue());
+                deck.Size--;                    
+            }
+
+            // Принимает дополнительно первую карту из колоды.
+            public void TakenAddCard(CardDeck deck)
+            {
+                summ = summ + deck.Peek().Dignity;
+                Console.WriteLine("\nПринимаю карту - ");
+                deck.Peek().PrintDignity();
+                gamerCards.Add(deck.Dequeue());
+                deck.Size--;
+            }
+
+            // Возвращает количество скидываемых карт.
+            public int Colution()
+            {
+                Random rnd = new Random();
+
+                return rnd.Next(0, 3);
+            }
+
+            // Возвращает минимальную карту игрока.
+            /// Можно просто sort() - не стработал.
+            public Card FindMinCard()
+            {
+                int min = gamerCards[0].Dignity;
+                int minIndex = 0;
+                int index = 0;
+
+                foreach (Card cd in gamerCards)
+                {
+                    if (min > cd.Dignity)
+                    {
+                        min = cd.Dignity;
+                        minIndex = index; 
+                    }
+
+                    index++;
+                }
+
+                Card ret = new Card(0);
+                ret = gamerCards[minIndex];
+                summ = summ - ret.Dignity;
+                Console.WriteLine("\nСкидываю карту -");
+                ret.PrintDignity();
+                gamerCards.RemoveAt(minIndex);
+
+                return ret;
+            }
+
+            public void Info(string name)
+            {
+                Console.WriteLine("\nКарты " + name + ": "); // + this.Values.ToString());
+                foreach (Card cd in this.GamerCards)
+                {
+                    cd.PrintDignity();
+                }
+                Console.WriteLine("\nСумма карт " + name + ": " + this.Summ);
+            }
+
+
+
+        }
+            
+
+        class Round
+        {
+
+        }
+       
+        
 
 
 
@@ -167,12 +198,61 @@ namespace HomeWork1
         {
     
             CardDeck deck = new CardDeck();
-          
+            Console.WriteLine("\nВ колоде: " + deck.Size + "карт.");
+
+            /*
             foreach (Card cd in deck)
             {
                 deck.Print();
             }
+            */
 
+            Gamer alex = new Gamer();
+            Gamer dmitry = new Gamer();
+
+            Dictionary<Gamer, string> allGamer = new Dictionary<Gamer, string>();
+
+            allGamer.Add(alex, "Alex");
+            allGamer.Add(dmitry, "Dmitry");
+
+            // Раздаём всем игрокам по 6 карт.
+            for (int i = 0; i < 6; i++)
+            {
+                foreach(Gamer gamer in allGamer.Keys)
+                {
+                    gamer.TakenCard(deck);
+                }                
+            }
+
+            // Выводим карты игроков
+            for (int i = 0; i < 6; i++)
+            {
+                foreach (Gamer gamer in allGamer.Keys)
+                {
+                    string name = allGamer[gamer];
+                    gamer.Info(name);
+                }
+            }
+
+
+            //alex.Info();
+            //dmitry.Info();
+
+            for (int i = 0; i < alex.Colution(); i++)
+            {
+                deck.Enqueue(alex.FindMinCard());
+                alex.TakenAddCard(deck);
+            }
+
+          //  alex.Info();
+
+            for (int i = 0; i < dmitry.Colution(); i++)
+            {
+                deck.Enqueue(dmitry.FindMinCard());
+                dmitry.TakenAddCard(deck);
+            }
+
+         //   dmitry.Info();
 
             Console.ReadKey();
         }
