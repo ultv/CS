@@ -126,7 +126,7 @@ namespace HomeWork1
             public void TakenAddCard(CardDeck deck)
             {
                 summ = summ + deck.Peek().Dignity;
-                Console.WriteLine("\nПринимаю карту - ");
+                Console.WriteLine("\nПринимаю карту: ");
                 deck.Peek().PrintDignity();
                 gamerCards.Add(deck.Dequeue());
                 deck.Size--;
@@ -162,7 +162,7 @@ namespace HomeWork1
                 Card ret = new Card(0);
                 ret = gamerCards[minIndex];
                 summ = summ - ret.Dignity;
-                Console.WriteLine("\nСкидываю карту -");
+                Console.WriteLine("\nСкидываю карту:");
                 ret.PrintDignity();
                 gamerCards.RemoveAt(minIndex);
 
@@ -171,15 +171,14 @@ namespace HomeWork1
 
             public void Info(string name)
             {
-                Console.WriteLine("\nКарты " + name + ": "); // + this.Values.ToString());
+                Console.WriteLine("\nКарты " + name + ". " + "Сумма карт: " + this.Summ);
+
                 foreach (Card cd in this.GamerCards)
                 {
                     cd.PrintDignity();
                 }
-                Console.WriteLine("\nСумма карт " + name + ": " + this.Summ);
+               
             }
-
-
 
         }
             
@@ -210,49 +209,44 @@ namespace HomeWork1
             Gamer alex = new Gamer();
             Gamer dmitry = new Gamer();
 
-            Dictionary<Gamer, string> allGamer = new Dictionary<Gamer, string>();
+            //Dictionary<Gamer, string> allGamer = new Dictionary<Gamer, string>();
+            Dictionary<string, Gamer> allGamer = new Dictionary<string, Gamer>();
 
-            allGamer.Add(alex, "Alex");
-            allGamer.Add(dmitry, "Dmitry");
+            allGamer.Add("Alex", alex);
+            allGamer.Add("Dmitry", dmitry);            
 
             // Раздаём всем игрокам по 6 карт.
             for (int i = 0; i < 6; i++)
             {
-                foreach(Gamer gamer in allGamer.Keys)
+                foreach(Gamer gamer in allGamer.Values)
                 {
                     gamer.TakenCard(deck);
                 }                
             }
+            
+            // Выводим карты игроков.
+            foreach (Gamer gamer in allGamer.Values)
+            {                
+                string name = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
+                gamer.Info(name);
+            }
 
-            // Выводим карты игроков
-            for (int i = 0; i < 6; i++)
+            foreach (Gamer gamer in allGamer.Values)
             {
-                foreach (Gamer gamer in allGamer.Keys)
+                for (int i = 0; i < gamer.Colution(); i++)
                 {
-                    string name = allGamer[gamer];
-                    gamer.Info(name);
+                    Console.WriteLine("\n" + allGamer.FirstOrDefault(x => x.Value == gamer).Key + ":");
+                    deck.Enqueue(gamer.FindMinCard());
+                    gamer.TakenAddCard(deck);
                 }
             }
 
-
-            //alex.Info();
-            //dmitry.Info();
-
-            for (int i = 0; i < alex.Colution(); i++)
+            // Выводим карты игроков.
+            foreach (Gamer gamer in allGamer.Values)
             {
-                deck.Enqueue(alex.FindMinCard());
-                alex.TakenAddCard(deck);
+                string name = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
+                gamer.Info(name);
             }
-
-          //  alex.Info();
-
-            for (int i = 0; i < dmitry.Colution(); i++)
-            {
-                deck.Enqueue(dmitry.FindMinCard());
-                dmitry.TakenAddCard(deck);
-            }
-
-         //   dmitry.Info();
 
             Console.ReadKey();
         }
