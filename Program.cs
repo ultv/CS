@@ -224,20 +224,22 @@ namespace HomeWork1
             bool fullVictory = false;
             bool solution = false;
             int numRaund = 0;
+            int numGamer = 0;
 
             CardDeck deck = new CardDeck();
-                        
-            Gamer alex = new Gamer();
-            Gamer dmitry = new Gamer();
-            Gamer ted = new Gamer();
-            Gamer victor = new Gamer();
             
             Dictionary<string, Gamer> allGamer = new Dictionary<string, Gamer>();
 
-            allGamer.Add("Alex", alex);
-            allGamer.Add("Dmitry", dmitry);
-            allGamer.Add("Ted", ted);
-            allGamer.Add("Victor", victor);
+            Console.WriteLine("Введите количестов игроков (от 2-х до 4-х): ");
+            numGamer = Int32.Parse(Console.ReadLine());
+
+            for(int i = 1; i <= numGamer; i++)
+            {
+                Console.WriteLine("Введите имя " + i + "игрока: ");
+                string name = Console.ReadLine();
+                Gamer gm = new Gamer();
+                allGamer.Add(name, gm);
+            }
 
             Console.BufferHeight = 2000;
             Console.WindowHeight = 72; //82;
@@ -340,7 +342,7 @@ namespace HomeWork1
 
                 if (!fullVictory)
                 {
-                    Console.WriteLine("Нажмите пробел для продолжения...");
+                    Console.WriteLine("Нажмите любую клавишу для игры в следующем раунде.");
                 }
                     
                 Console.ReadKey();
