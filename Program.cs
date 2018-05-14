@@ -34,8 +34,7 @@ namespace HomeWork1
             // Выводит карту и значение.
             // Десять выводим как римскую.
             public void PrintDignity()
-            {
-
+            {               
                 if (dignity == 10)
                 {
                     Console.Write(" ___");
@@ -55,7 +54,7 @@ namespace HomeWork1
                     Console.Write("[ " + dignity + " ]");
                     Console.SetCursorPosition(Console.CursorLeft - 5, Console.CursorTop + 1);
                     Console.Write("[___]");
-                }
+                }                                           
             }
 
                 // Выводит рубашку карты.
@@ -230,20 +229,46 @@ namespace HomeWork1
             
             Dictionary<string, Gamer> allGamer = new Dictionary<string, Gamer>();
 
-            Console.WriteLine("Введите количестов игроков (от 2-х до 4-х): ");
-            numGamer = Int32.Parse(Console.ReadLine());
-
+            // Количество игроков ограничиваем по принципу, что нельзя играть одному и всем должно хватить карт.
+            while ((numGamer < 2) || (numGamer > 4))
+            {
+                Console.WriteLine("\nВведите количестов игроков (от 2-х до 4-х):\n");
+                try
+                {
+                    numGamer = Int32.Parse(Console.ReadLine());
+                }
+                catch
+                {
+                    Console.WriteLine("\nИспользуйте только числовое значение.");
+                }                
+            }
+            
             for(int i = 1; i <= numGamer; i++)
             {
-                Console.WriteLine("Введите имя " + i + "игрока: ");
-                string name = Console.ReadLine();
-                Gamer gm = new Gamer();
-                allGamer.Add(name, gm);
+                bool ok = false;
+
+                while (!ok)
+                {
+                    ok = true;
+                    Console.WriteLine("\nВведите имя " + i + " игрока:\n");
+                    string name = Console.ReadLine();
+                    Gamer gm = new Gamer();
+                    try
+                    {
+                        allGamer.Add(name, gm);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("\nИгрок с таким именем уже существует!");
+                        ok = false;
+                    }
+                }
+                
+                
             }
 
-            Console.BufferHeight = 2000;
-            Console.WindowHeight = 72; //82;
-            Console.WriteLine("\nВ колоде: " + deck.Size + "карт.\n");
+      //      Console.BufferHeight = 2000;
+            Console.WindowHeight = 72; //82;     
 
             while (!fullVictory)
             {
@@ -260,6 +285,9 @@ namespace HomeWork1
                         gamer.TakenCard(deck);
                     }
                 }
+
+                Console.Clear();
+                Console.WriteLine("\nВ колоде: " + deck.Size + "карт.\n");
 
                 // Выводим карты игроков.
                 foreach (Gamer gamer in allGamer.Values)
