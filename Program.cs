@@ -194,7 +194,7 @@ namespace HomeWork1
             public void Info(string name)
             {
                 Console.WriteLine("-----------------------------------------------\n");
-                Console.WriteLine("Карты " + name + ". " + "Сумма карт:" + this.Summ);
+                Console.WriteLine("Карты " + name + ". " + "Сумма карт: " + this.Summ);
 
                 foreach (Card cd in this.GamerCards)
                 {
@@ -220,26 +220,18 @@ namespace HomeWork1
 
         static void Main(string[] args)
         {
-            Console.BufferHeight = 2000;
-
+            
             bool fullVictory = false;
+            bool solution = false;
+            int numRaund = 0;
 
             CardDeck deck = new CardDeck();
-            Console.WriteLine("\nВ колоде: " + deck.Size + "карт.\n");
-
-            /*
-            foreach (Card cd in deck)
-            {
-                deck.Print();
-            }
-            */
-
+                        
             Gamer alex = new Gamer();
             Gamer dmitry = new Gamer();
             Gamer ted = new Gamer();
             Gamer victor = new Gamer();
-
-            //Dictionary<Gamer, string> allGamer = new Dictionary<Gamer, string>();
+            
             Dictionary<string, Gamer> allGamer = new Dictionary<string, Gamer>();
 
             allGamer.Add("Alex", alex);
@@ -247,9 +239,17 @@ namespace HomeWork1
             allGamer.Add("Ted", ted);
             allGamer.Add("Victor", victor);
 
+            Console.BufferHeight = 2000;
+            Console.WindowHeight = 72; //82;
+            Console.WriteLine("\nВ колоде: " + deck.Size + "карт.\n");
+
             while (!fullVictory)
             {
                 // --------Раунд -------- //
+
+                numRaund++;
+                solution = false;
+
                 // Раздаём всем игрокам по 6 карт.
                 for (int i = 0; i < 6; i++)
                 {
@@ -273,14 +273,22 @@ namespace HomeWork1
                         Console.WriteLine(allGamer.FirstOrDefault(x => x.Value == gamer).Key + ":\n");
                         deck.Enqueue(gamer.FindMinCard());
                         gamer.TakenAddCard(deck);
+                        solution = true;
                     }
                 }
 
-                // Выводим карты игроков.
-                foreach (Gamer gamer in allGamer.Values)
+                // Выводим карты игроков, если игроки меняли карты.
+                if(solution)
                 {
-                    string name = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
-                    gamer.Info(name);
+                    foreach (Gamer gamer in allGamer.Values)
+                    {
+                        string name = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
+                        gamer.Info(name);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Игроки не стали менять карты.\n");
                 }
 
                 // Выбираем победителя.
@@ -295,7 +303,7 @@ namespace HomeWork1
                     }
                 }
 
-                Console.Write("Раунд выиграл - " + vic + "!\n\n");
+                Console.Write(numRaund + " раунд выиграл - " + vic + "!\n\n");
                 allGamer[vic].Victory++;
 
                 Console.Write("Счет: / ");
@@ -303,10 +311,7 @@ namespace HomeWork1
                 {
                     Console.Write(allGamer.FirstOrDefault(x => x.Value == gamer).Key + " - " + gamer.Victory + " / ");
                 }
-                Console.Write("\n\n");
-                
-
-                // --------Раунд закончен ---------- //
+                Console.Write("\n\n");                                          
 
                 // Вернуть все карты в колоду
                 for (int i = 5; i >= 0; i--)
@@ -326,15 +331,27 @@ namespace HomeWork1
                     if (gamer.Victory == 5)
                     {
                         fullVictory = true;
+                        Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine("Игру выиграл - " + allGamer.FirstOrDefault(x => x.Value == gamer).Key + "!!!");
                     }                        
                 }
+
+                // --------Раунд закончен ---------- //
+
+                if (!fullVictory)
+                {
+                    Console.WriteLine("Нажмите пробел для продолжения...");
+                }
+                    
+                Console.ReadKey();
+                Console.Clear();
+
             }
-            
 
 
 
-            Console.ReadKey();
+
+           // Console.ReadKey();
         }
     }
 }
