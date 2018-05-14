@@ -248,22 +248,31 @@ namespace HomeWork1
                 bool ok = false;
 
                 while (!ok)
-                {
-                    ok = true;
-                    Console.WriteLine("\nВведите имя " + i + " игрока:\n");
+                {                    
+                    ok = true;                    
+                    Console.WriteLine($"\nВведите имя {i} игрока:\n");
                     string name = Console.ReadLine();
-                    Gamer gm = new Gamer();
-                    try
+
+                    if ((name != " ") && (!name.Contains(" ")))
                     {
-                        allGamer.Add(name, gm);
+                        Gamer gm = new Gamer();
+                        try
+                        {
+                            allGamer.Add(name, gm);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("\nИгрок с таким именем уже существует!");
+                            ok = false;
+                        }
                     }
-                    catch
+                    else
                     {
-                        Console.WriteLine("\nИгрок с таким именем уже существует!");
+                        Console.WriteLine("\nИспользовать пустое имя или пробел в имени недопустимо.");
                         ok = false;
-                    }
-                }
-                
+                    }                        
+                    
+                }                
                 
             }
 
@@ -286,8 +295,8 @@ namespace HomeWork1
                     }
                 }
 
-                Console.Clear();
-                Console.WriteLine("\nВ колоде: " + deck.Size + "карт.\n");
+                Console.Clear();                
+                Console.WriteLine($"\nВ колоде: {deck.Size} карт.\n");
 
                 // Выводим карты игроков.
                 foreach (Gamer gamer in allGamer.Values)
@@ -332,8 +341,8 @@ namespace HomeWork1
                         vic = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
                     }
                 }
-
-                Console.Write(numRaund + " раунд выиграл - " + vic + "!\n\n");
+               
+                Console.Write($"{numRaund} раунд выиграл - {vic} !\n\n");
                 allGamer[vic].Victory++;
 
                 Console.Write("Счет: / ");
@@ -361,8 +370,8 @@ namespace HomeWork1
                     if (gamer.Victory == 5)
                     {
                         fullVictory = true;
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine("Игру выиграл - " + allGamer.FirstOrDefault(x => x.Value == gamer).Key + "!!!");
+                        Console.ForegroundColor = ConsoleColor.Green;                        
+                        Console.WriteLine($"Игру выиграл - {allGamer.FirstOrDefault(x => x.Value == gamer).Key} !!!");
                     }                        
                 }
 
