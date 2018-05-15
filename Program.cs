@@ -9,7 +9,9 @@ namespace HomeWork1
 {
     class Program
     {
-
+        
+        // Содержит "номинал" карты.
+        // Выводит изображение карты в консоль.
         class Card
         {
             protected int dignity = 0;
@@ -68,6 +70,9 @@ namespace HomeWork1
             
         }
 
+        // Заполняет колоду картами.
+        // Выводит колоду в консоль.
+        // Получает карту сброшенную игроком.
         class CardDeck : Queue<Card>
         {
             protected int size = 0;
@@ -109,6 +114,11 @@ namespace HomeWork1
             }
         }
 
+        // Содержит коллекцию карт, сумму своих карт, количество своих побед.
+        // Получает карты из колоды.
+        // Решает скидывать ли карты и их количество.
+        // Если решил скидывать - отдаёт карту с минимальным значением,
+        // вместо неё из колоды принимает другую.        
         class Gamer
         {
             protected List<Card> gamerCards = new List<Card>();
@@ -153,6 +163,7 @@ namespace HomeWork1
             }
 
             // Возвращает количество скидываемых карт.
+            // Если 0 - карты не скидывает.
             public int Colution()
             {
                 Random rnd = new Random();
@@ -160,8 +171,7 @@ namespace HomeWork1
                 return rnd.Next(0, 3);
             }
 
-            // Возвращает минимальную карту игрока.
-            /// Можно просто sort() - не стработал.
+            // Возвращает минимальную карту игрока.           
             public Card FindMinCard()
             {
                 int min = gamerCards[0].Dignity;
@@ -190,10 +200,12 @@ namespace HomeWork1
                 return ret;
             }
 
+            // Выводит все свои карты и сумму.
             public void Info(string name)
             {
                 Console.WriteLine("-----------------------------------------------\n");
-                Console.WriteLine("Карты " + name + ". " + "Сумма карт: " + this.Summ);
+                //Console.WriteLine("Карты игрока " + name + ". " + "Сумма карт: " + this.Summ);
+                Console.WriteLine($"Карты игрока {name}. Сумма карт: {this.Summ}");
 
                 foreach (Card cd in this.GamerCards)
                 {
@@ -203,9 +215,94 @@ namespace HomeWork1
                 Console.WriteLine("\n\n\n");
                 Console.WriteLine("\n-----------------------------------------------\n");
             }
+        }
+
+
+        class Croupier
+        {
+            public int NumRaund { get; set; }
+
+            // Обрабатывает введённое пользователем количество игроков.
+            // Количество ограничиваем по принципу, что нельзя играть одному и всем должно хватить карт.
+            // Возвращает количестов игроков.
+            public int GetNumGamer()
+            {
+                int numGamer = 0;
+                                
+                while ((numGamer < 2) || (numGamer > 4))
+                {
+                    Console.WriteLine("\nВведите количестов игроков (от 2-х до 4-х):\n");
+                    try
+                    {
+                        numGamer = Int32.Parse(Console.ReadLine());
+                    }
+                    catch
+                    {
+                        Console.WriteLine("\nИспользуйте только числовое значение.");
+                    }
+                }
+
+                return numGamer;
+            }
+
+            // Обрабатывает введённые пользователем имена игроков и заносит в коллекцию.
+            // Принимает коллекцию игроков и их количество.
+            public void RegisterGamer(Dictionary<string, Gamer> allGamer, int numGamer)
+            {
+                for (int i = 1; i <= numGamer; i++)
+                {
+                    bool ok = false;
+
+                    while (!ok)
+                    {
+                        ok = true;
+                        Console.WriteLine($"\nВведите имя {i} игрока:\n");
+                        string name = Console.ReadLine();
+
+                        if ((name != " ") && (!name.Contains(" ")))
+                        {
+                            Gamer gm = new Gamer();
+                            try
+                            {
+                                allGamer.Add(name, gm);
+                            }
+                            catch
+                            {
+                                Console.WriteLine("\nИгрок с таким именем уже существует!");
+                                ok = false;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("\nИспользовать пустое имя или пробел в имени недопустимо.");
+                            ok = false;
+                        }
+                    }
+                }
+            }
+
+            // Проверить общее количество побед.
+            // Возвращает истину в случае 5-ти кратной побыды игрока.
+            public bool CheсkVictory(Dictionary<string, Gamer> allGamer)
+            {                
+                foreach (Gamer gamer in allGamer.Values)
+                {
+                    if (gamer.Victory == 5)
+                    {                        
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"Игру выиграл - {allGamer.FirstOrDefault(x => x.Value == gamer).Key} !!!");
+                        return true;
+                    }
+                }
+
+                Console.WriteLine("Нажмите любую клавишу для игры в следующем раунде.");
+
+                return false;
+            }
+
+
 
         }
-            
 
         class Round
         {
@@ -221,69 +318,25 @@ namespace HomeWork1
         {
             
             bool fullVictory = false;
-            bool solution = false;
-            int numRaund = 0;
-            int numGamer = 0;
+            bool solution = false;         
+
+            Croupier boss = new Croupier(); 
 
             CardDeck deck = new CardDeck();
             
             Dictionary<string, Gamer> allGamer = new Dictionary<string, Gamer>();
 
-            // Количество игроков ограничиваем по принципу, что нельзя играть одному и всем должно хватить карт.
-            while ((numGamer < 2) || (numGamer > 4))
-            {
-                Console.WriteLine("\nВведите количестов игроков (от 2-х до 4-х):\n");
-                try
-                {
-                    numGamer = Int32.Parse(Console.ReadLine());
-                }
-                catch
-                {
-                    Console.WriteLine("\nИспользуйте только числовое значение.");
-                }                
-            }
-            
-            for(int i = 1; i <= numGamer; i++)
-            {
-                bool ok = false;
-
-                while (!ok)
-                {                    
-                    ok = true;                    
-                    Console.WriteLine($"\nВведите имя {i} игрока:\n");
-                    string name = Console.ReadLine();
-
-                    if ((name != " ") && (!name.Contains(" ")))
-                    {
-                        Gamer gm = new Gamer();
-                        try
-                        {
-                            allGamer.Add(name, gm);
-                        }
-                        catch
-                        {
-                            Console.WriteLine("\nИгрок с таким именем уже существует!");
-                            ok = false;
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("\nИспользовать пустое имя или пробел в имени недопустимо.");
-                        ok = false;
-                    }                        
-                    
-                }                
-                
-            }
+            boss.RegisterGamer(allGamer, boss.GetNumGamer());            
 
       //      Console.BufferHeight = 2000;
             Console.WindowHeight = 72; //82;     
 
-            while (!fullVictory)
+            while (true)
             {
-                // --------Раунд -------- //
 
-                numRaund++;
+                Console.Clear();                
+
+                boss.NumRaund++;
                 solution = false;
 
                 // Раздаём всем игрокам по 6 карт.
@@ -296,7 +349,7 @@ namespace HomeWork1
                 }
 
                 Console.Clear();                
-                Console.WriteLine($"\nВ колоде: {deck.Size} карт.\n");
+                Console.WriteLine($"\nСейчас в колоде: {deck.Size} карты.\n");
 
                 // Выводим карты игроков.
                 foreach (Gamer gamer in allGamer.Values)
@@ -342,7 +395,7 @@ namespace HomeWork1
                     }
                 }
                
-                Console.Write($"{numRaund} раунд выиграл - {vic} !\n\n");
+                Console.Write($"{boss.NumRaund} раунд выиграл - {vic} !\n\n");
                 allGamer[vic].Victory++;
 
                 Console.Write("Счет: / ");
@@ -364,33 +417,13 @@ namespace HomeWork1
                     }
                 }
 
-                // Проверить общее количество побед.
-                foreach (Gamer gamer in allGamer.Values)
-                {
-                    if (gamer.Victory == 5)
-                    {
-                        fullVictory = true;
-                        Console.ForegroundColor = ConsoleColor.Green;                        
-                        Console.WriteLine($"Игру выиграл - {allGamer.FirstOrDefault(x => x.Value == gamer).Key} !!!");
-                    }                        
-                }
+                if (boss.CheсkVictory(allGamer))
+                    break;
 
-                // --------Раунд закончен ---------- //
-
-                if (!fullVictory)
-                {
-                    Console.WriteLine("Нажмите любую клавишу для игры в следующем раунде.");
-                }
-                    
-                Console.ReadKey();
-                Console.Clear();
-
+                Console.ReadKey();         
             }
 
-
-
-
-           // Console.ReadKey();
+           Console.ReadKey();
         }
     }
 }
