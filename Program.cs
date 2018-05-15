@@ -221,6 +221,7 @@ namespace HomeWork1
         class Croupier
         {
             public int NumRaund { get; set; }
+        //    protected CardDeck deck = new CardDeck();
 
             // Обрабатывает введённое пользователем количество игроков.
             // Количество ограничиваем по принципу, что нельзя играть одному и всем должно хватить карт.
@@ -300,46 +301,10 @@ namespace HomeWork1
                 return false;
             }
 
-
-
-        }
-
-        class Round
-        {
-
-        }
-       
-        
-
-
-
-
-        static void Main(string[] args)
-        {
-            
-            bool fullVictory = false;
-            bool solution = false;         
-
-            Croupier boss = new Croupier(); 
-
-            CardDeck deck = new CardDeck();
-            
-            Dictionary<string, Gamer> allGamer = new Dictionary<string, Gamer>();
-
-            boss.RegisterGamer(allGamer, boss.GetNumGamer());            
-
-      //      Console.BufferHeight = 2000;
-            Console.WindowHeight = 72; //82;     
-
-            while (true)
+            // Раздаёт всем игрокам по 6 карт.
+            public void GiveCards (Dictionary<string, Gamer> allGamer, CardDeck deck)
             {
-
-                Console.Clear();                
-
-                boss.NumRaund++;
-                solution = false;
-
-                // Раздаём всем игрокам по 6 карт.
+                
                 for (int i = 0; i < 6; i++)
                 {
                     foreach (Gamer gamer in allGamer.Values)
@@ -347,19 +312,16 @@ namespace HomeWork1
                         gamer.TakenCard(deck);
                     }
                 }
+            }
 
-                Console.Clear();                
-                Console.WriteLine($"\nСейчас в колоде: {deck.Size} карты.\n");
-
-                // Выводим карты игроков.
+            // Помогает игрокам пожелавшим скинуть карты .
+            public bool WillReturnCards(Dictionary<string, Gamer> allGamer, CardDeck deck)
+            {
+                bool solution = false;
+                
                 foreach (Gamer gamer in allGamer.Values)
-                {
-                    string name = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
-                    gamer.Info(name);
-                }
+                {                    
 
-                foreach (Gamer gamer in allGamer.Values)
-                {
                     for (int i = 0; i < gamer.Colution(); i++)
                     {
                         Console.WriteLine(allGamer.FirstOrDefault(x => x.Value == gamer).Key + ":\n");
@@ -369,21 +331,14 @@ namespace HomeWork1
                     }
                 }
 
-                // Выводим карты игроков, если игроки меняли карты.
-                if(solution)
-                {
-                    foreach (Gamer gamer in allGamer.Values)
-                    {
-                        string name = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
-                        gamer.Info(name);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Игроки не стали менять карты.\n");
-                }
+                if (solution)
+                    return true;
+                else return false;
+            }
 
-                // Выбираем победителя.
+            // Выбирает победителя раунда.
+            public void SelectRoundVictory(Dictionary<string, Gamer> allGamer)
+            {                
                 string vic = "";
                 int max = 0;
                 foreach (Gamer gamer in allGamer.Values)
@@ -394,18 +349,25 @@ namespace HomeWork1
                         vic = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
                     }
                 }
-               
-                Console.Write($"{boss.NumRaund} раунд выиграл - {vic} !\n\n");
-                allGamer[vic].Victory++;
 
+                Console.Write($"{NumRaund} раунд выиграл - {vic} !\n\n");
+                allGamer[vic].Victory++;
+            }
+
+            // Показывает счет игры.
+            public void ShowCount(Dictionary<string, Gamer> allGamer)
+            {
                 Console.Write("Счет: / ");
-                foreach(Gamer gamer in allGamer.Values)
+                foreach (Gamer gamer in allGamer.Values)
                 {
                     Console.Write(allGamer.FirstOrDefault(x => x.Value == gamer).Key + " - " + gamer.Victory + " / ");
                 }
-                Console.Write("\n\n");                                          
+                Console.Write("\n\n");
+            }
 
-                // Вернуть все карты в колоду
+            // Собирает карты у игроков и возвращает в колоду. 
+            public void CollectCards(Dictionary<string, Gamer> allGamer, CardDeck deck)
+            {                
                 for (int i = 5; i >= 0; i--)
                 {
                     foreach (Gamer gamer in allGamer.Values)
@@ -416,7 +378,67 @@ namespace HomeWork1
                         gamer.GamerCards.RemoveAt(i);
                     }
                 }
+            }
 
+            // Выводит карты игроков.
+            public void ShowCards(Dictionary<string, Gamer> allGamer)
+            {                
+                foreach (Gamer gamer in allGamer.Values)
+                {
+                    string name = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
+                    gamer.Info(name);
+                }
+            }
+
+        }        
+
+
+        // Создает: крупье, колоду, коллекцию игроков.
+        // Регистрирует игроков.
+        // Начало раунда - нумерует раунд, раздает карты.
+        // Показывает карты игроков, если карты менялись показывает ещё раз.
+        // Выбирает победителя в раунде.
+        // Показывает счёт игры, собирает карты.
+        // Если есть 5-ти кратный победитель - объевляет и заканчивает игру,
+        // если нет - возвращается к началу раунда.
+        static void Main(string[] args)
+        {
+
+            // Console.BufferHeight = 2000;
+            Console.WindowHeight = 72; //82; 
+                
+            Croupier boss = new Croupier();
+            CardDeck deck = new CardDeck();            
+            Dictionary<string, Gamer> allGamer = new Dictionary<string, Gamer>();
+
+            boss.RegisterGamer(allGamer, boss.GetNumGamer());                 
+
+            while (true)
+            {
+
+                Console.Clear();
+                            
+                boss.NumRaund++;
+                boss.GiveCards(allGamer, deck);
+
+                Console.WriteLine($"\nСейчас в колоде: {deck.Size} карты.\n");
+
+                boss.ShowCards(allGamer);
+                
+                // Если игроки поменяли карты - выводим карты игроков ещё раз.
+                if (boss.WillReturnCards(allGamer, deck))
+                {
+                    boss.ShowCards(allGamer);                 
+                }
+                else
+                {
+                    Console.WriteLine("Игроки не стали менять карты.\n");
+                }    
+
+                boss.SelectRoundVictory(allGamer);
+                boss.ShowCount(allGamer);
+                boss.CollectCards(allGamer, deck);
+               
                 if (boss.CheсkVictory(allGamer))
                     break;
 
