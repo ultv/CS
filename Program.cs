@@ -121,7 +121,7 @@ namespace HomeWork1
         // вместо неё из колоды принимает другую.        
         class Gamer
         {
-            protected List<Card> gamerCards = new List<Card>();
+            protected List<Card> gamerCards = new List<Card>();            
             protected int summ = 0;
             protected int victory = 0;
 
@@ -155,7 +155,8 @@ namespace HomeWork1
             public void TakenAddCard(CardDeck deck)
             {
                 summ = summ + deck.Peek().Dignity;
-                Console.WriteLine("Принимаю карту: ");                
+                Console.WriteLine("Принимаю карту: ");
+                Console.SetCursorPosition(Console.CursorLeft + 20, Console.CursorTop + 0);
                 deck.Peek().PrintDignity();
                 Console.WriteLine("\n");
                 gamerCards.Add(deck.Dequeue());
@@ -194,7 +195,7 @@ namespace HomeWork1
                 summ = summ - ret.Dignity;
                 Console.WriteLine("Скидываю карту:");                
                 ret.PrintDignity();
-                Console.WriteLine("\n");
+                Console.SetCursorPosition(Console.CursorLeft + 15, Console.CursorTop - 4);                
                 gamerCards.RemoveAt(minIndex);
 
                 return ret;
@@ -217,11 +218,21 @@ namespace HomeWork1
             }
         }
 
-
+        // При создании - "открывает колоду"
+        // и "бланк списка игроков".
         class Croupier
         {
+            
             public int NumRaund { get; set; }
-        //    protected CardDeck deck = new CardDeck();
+            public CardDeck Deck { get; set; }
+            public Dictionary<string, Gamer> AllGamer { get; set; }
+            
+
+            public Croupier()
+            {
+                Deck = new CardDeck();
+                AllGamer = new Dictionary<string, Gamer>();
+            }
 
             // Обрабатывает введённое пользователем количество игроков.
             // Количество ограничиваем по принципу, что нельзя играть одному и всем должно хватить карт.
@@ -248,7 +259,7 @@ namespace HomeWork1
 
             // Обрабатывает введённые пользователем имена игроков и заносит в коллекцию.
             // Принимает коллекцию игроков и их количество.
-            public void RegisterGamer(Dictionary<string, Gamer> allGamer, int numGamer)
+            public void RegisterGamer(int numGamer)
             {
                 for (int i = 1; i <= numGamer; i++)
                 {
@@ -265,7 +276,7 @@ namespace HomeWork1
                             Gamer gm = new Gamer();
                             try
                             {
-                                allGamer.Add(name, gm);
+                                AllGamer.Add(name, gm);
                             }
                             catch
                             {
@@ -284,14 +295,14 @@ namespace HomeWork1
 
             // Проверить общее количество побед.
             // Возвращает истину в случае 5-ти кратной побыды игрока.
-            public bool CheсkVictory(Dictionary<string, Gamer> allGamer)
+            public bool CheсkVictory( )
             {                
-                foreach (Gamer gamer in allGamer.Values)
+                foreach (Gamer gamer in AllGamer.Values)
                 {
                     if (gamer.Victory == 5)
                     {                        
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"Игру выиграл - {allGamer.FirstOrDefault(x => x.Value == gamer).Key} !!!");
+                        Console.WriteLine($"Игру выиграл - {AllGamer.FirstOrDefault(x => x.Value == gamer).Key} !!!");
                         return true;
                     }
                 }
@@ -302,31 +313,31 @@ namespace HomeWork1
             }
 
             // Раздаёт всем игрокам по 6 карт.
-            public void GiveCards (Dictionary<string, Gamer> allGamer, CardDeck deck)
+            public void GiveCards( )
             {
                 
                 for (int i = 0; i < 6; i++)
                 {
-                    foreach (Gamer gamer in allGamer.Values)
+                    foreach (Gamer gamer in AllGamer.Values)
                     {
-                        gamer.TakenCard(deck);
+                        gamer.TakenCard(Deck);
                     }
                 }
             }
 
             // Помогает игрокам пожелавшим скинуть карты .
-            public bool WillReturnCards(Dictionary<string, Gamer> allGamer, CardDeck deck)
+            public bool WillReturnCards( )
             {
                 bool solution = false;
                 
-                foreach (Gamer gamer in allGamer.Values)
+                foreach (Gamer gamer in AllGamer.Values)
                 {                    
 
                     for (int i = 0; i < gamer.Colution(); i++)
                     {
-                        Console.WriteLine(allGamer.FirstOrDefault(x => x.Value == gamer).Key + ":\n");
-                        deck.Enqueue(gamer.FindMinCard());
-                        gamer.TakenAddCard(deck);
+                        Console.WriteLine($"{AllGamer.FirstOrDefault(x => x.Value == gamer).Key}:\n");
+                        Deck.Enqueue(gamer.FindMinCard());
+                        gamer.TakenAddCard(Deck);
                         solution = true;
                     }
                 }
@@ -337,43 +348,43 @@ namespace HomeWork1
             }
 
             // Выбирает победителя раунда.
-            public void SelectRoundVictory(Dictionary<string, Gamer> allGamer)
+            public void SelectRoundVictory( )
             {                
                 string vic = "";
                 int max = 0;
-                foreach (Gamer gamer in allGamer.Values)
+                foreach (Gamer gamer in AllGamer.Values)
                 {
                     if (gamer.Summ > max)
                     {
                         max = gamer.Summ;
-                        vic = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
+                        vic = AllGamer.FirstOrDefault(x => x.Value == gamer).Key;
                     }
                 }
 
                 Console.Write($"{NumRaund} раунд выиграл - {vic} !\n\n");
-                allGamer[vic].Victory++;
+                AllGamer[vic].Victory++;
             }
 
             // Показывает счет игры.
-            public void ShowCount(Dictionary<string, Gamer> allGamer)
+            public void ShowCount( )
             {
                 Console.Write("Счет: / ");
-                foreach (Gamer gamer in allGamer.Values)
+                foreach (Gamer gamer in AllGamer.Values)
                 {
-                    Console.Write(allGamer.FirstOrDefault(x => x.Value == gamer).Key + " - " + gamer.Victory + " / ");
+                    Console.Write(AllGamer.FirstOrDefault(x => x.Value == gamer).Key + " - " + gamer.Victory + " / ");
                 }
                 Console.Write("\n\n");
             }
 
             // Собирает карты у игроков и возвращает в колоду. 
-            public void CollectCards(Dictionary<string, Gamer> allGamer, CardDeck deck)
+            public void CollectCards( )
             {                
                 for (int i = 5; i >= 0; i--)
                 {
-                    foreach (Gamer gamer in allGamer.Values)
+                    foreach (Gamer gamer in AllGamer.Values)
                     {
-                        deck.Enqueue(gamer.GamerCards[i]);
-                        deck.Size++;
+                        Deck.Enqueue(gamer.GamerCards[i]);
+                        Deck.Size++;
                         gamer.Summ = gamer.Summ - gamer.GamerCards[i].Dignity;
                         gamer.GamerCards.RemoveAt(i);
                     }
@@ -381,11 +392,11 @@ namespace HomeWork1
             }
 
             // Выводит карты игроков.
-            public void ShowCards(Dictionary<string, Gamer> allGamer)
+            public void ShowCards( )
             {                
-                foreach (Gamer gamer in allGamer.Values)
+                foreach (Gamer gamer in AllGamer.Values)
                 {
-                    string name = allGamer.FirstOrDefault(x => x.Value == gamer).Key;
+                    string name = AllGamer.FirstOrDefault(x => x.Value == gamer).Key;
                     gamer.Info(name);
                 }
             }
@@ -393,8 +404,7 @@ namespace HomeWork1
         }        
 
 
-        // Создает: крупье, колоду, коллекцию игроков.
-        // Регистрирует игроков.
+        // Создает крупье, регистрирует игроков.
         // Начало раунда - нумерует раунд, раздает карты.
         // Показывает карты игроков, если карты менялись показывает ещё раз.
         // Выбирает победителя в раунде.
@@ -407,11 +417,9 @@ namespace HomeWork1
             // Console.BufferHeight = 2000;
             Console.WindowHeight = 72; //82; 
                 
-            Croupier boss = new Croupier();
-            CardDeck deck = new CardDeck();            
-            Dictionary<string, Gamer> allGamer = new Dictionary<string, Gamer>();
+            Croupier boss = new Croupier();                        
 
-            boss.RegisterGamer(allGamer, boss.GetNumGamer());                 
+            boss.RegisterGamer(boss.GetNumGamer());                 
 
             while (true)
             {
@@ -419,27 +427,27 @@ namespace HomeWork1
                 Console.Clear();
                             
                 boss.NumRaund++;
-                boss.GiveCards(allGamer, deck);
+                boss.GiveCards();
 
-                Console.WriteLine($"\nСейчас в колоде: {deck.Size} карты.\n");
+                Console.WriteLine($"\nСейчас в колоде: {boss.Deck.Size} карты.\n");
 
-                boss.ShowCards(allGamer);
+                boss.ShowCards();
                 
                 // Если игроки поменяли карты - выводим карты игроков ещё раз.
-                if (boss.WillReturnCards(allGamer, deck))
+                if (boss.WillReturnCards())
                 {
-                    boss.ShowCards(allGamer);                 
+                    boss.ShowCards();                 
                 }
                 else
                 {
                     Console.WriteLine("Игроки не стали менять карты.\n");
                 }    
 
-                boss.SelectRoundVictory(allGamer);
-                boss.ShowCount(allGamer);
-                boss.CollectCards(allGamer, deck);
+                boss.SelectRoundVictory();
+                boss.ShowCount();
+                boss.CollectCards();
                
-                if (boss.CheсkVictory(allGamer))
+                if (boss.CheсkVictory())
                     break;
 
                 Console.ReadKey();         
