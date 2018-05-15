@@ -120,46 +120,34 @@ namespace HomeWork1
         // Если решил скидывать - отдаёт карту с минимальным значением,
         // вместо неё из колоды принимает другую.        
         class Gamer
-        {
-            protected List<Card> gamerCards = new List<Card>();            
-            protected int summ = 0;
-            protected int victory = 0;
+        {    
 
-            public int Summ
+            public int Summ { get; set; }
+            public int Victory { get; set; }
+            public List<Card> GamerCards { get; set; }
+
+            public Gamer()
             {
-                get { return summ; }
-                set { summ = value; }
+                GamerCards = new List<Card>();
             }
 
-            public List<Card> GamerCards
-            {
-                get { return gamerCards; }
-                set { gamerCards = value;  }
-            }
-
-            public int Victory
-            {
-                get { return victory; }
-                set { victory = value; }
-            }
-        
-            // Принимает при раздаче первую карту из колоды.
+            // Принимает при раздаче карту из колоды.
             public void TakenCard(CardDeck deck)
             {
-                summ = summ + deck.Peek().Dignity;              
-                gamerCards.Add(deck.Dequeue());
+                Summ = Summ + deck.Peek().Dignity;              
+                GamerCards.Add(deck.Dequeue());
                 deck.Size--;                    
             }
 
             // Принимает дополнительно первую карту из колоды.
             public void TakenAddCard(CardDeck deck)
             {
-                summ = summ + deck.Peek().Dignity;
+                Summ = Summ + deck.Peek().Dignity;
                 Console.WriteLine("Принимаю карту: ");
                 Console.SetCursorPosition(Console.CursorLeft + 20, Console.CursorTop + 0);
                 deck.Peek().PrintDignity();
                 Console.WriteLine("\n");
-                gamerCards.Add(deck.Dequeue());
+                GamerCards.Add(deck.Dequeue());
                 deck.Size--;
             }
 
@@ -175,11 +163,11 @@ namespace HomeWork1
             // Возвращает минимальную карту игрока.           
             public Card FindMinCard()
             {
-                int min = gamerCards[0].Dignity;
+                int min = GamerCards[0].Dignity;
                 int minIndex = 0;
                 int index = 0;
 
-                foreach (Card cd in gamerCards)
+                foreach (Card cd in GamerCards)
                 {
                     if (min > cd.Dignity)
                     {
@@ -191,12 +179,12 @@ namespace HomeWork1
                 }
 
                 Card ret = new Card(0);
-                ret = gamerCards[minIndex];
-                summ = summ - ret.Dignity;
+                ret = GamerCards[minIndex];
+                Summ = Summ - ret.Dignity;
                 Console.WriteLine("Скидываю карту:");                
                 ret.PrintDignity();
                 Console.SetCursorPosition(Console.CursorLeft + 15, Console.CursorTop - 4);                
-                gamerCards.RemoveAt(minIndex);
+                GamerCards.RemoveAt(minIndex);
 
                 return ret;
             }
@@ -258,7 +246,7 @@ namespace HomeWork1
             }
 
             // Обрабатывает введённые пользователем имена игроков и заносит в коллекцию.
-            // Принимает коллекцию игроков и их количество.
+            // Принимает количество игроков.
             public void RegisterGamer(int numGamer)
             {
                 for (int i = 1; i <= numGamer; i++)
@@ -293,7 +281,7 @@ namespace HomeWork1
                 }
             }
 
-            // Проверить общее количество побед.
+            // Проверяет общее количество побед.
             // Возвращает истину в случае 5-ти кратной побыды игрока.
             public bool CheсkVictory( )
             {                
@@ -325,7 +313,7 @@ namespace HomeWork1
                 }
             }
 
-            // Помогает игрокам пожелавшим скинуть карты .
+            // Помогает игрокам скинуть карты .
             public bool WillReturnCards( )
             {
                 bool solution = false;
@@ -337,6 +325,7 @@ namespace HomeWork1
                     {
                         Console.WriteLine($"{AllGamer.FirstOrDefault(x => x.Value == gamer).Key}:\n");
                         Deck.Enqueue(gamer.FindMinCard());
+                        Deck.Size++; //???
                         gamer.TakenAddCard(Deck);
                         solution = true;
                     }
@@ -425,7 +414,9 @@ namespace HomeWork1
             {
 
                 Console.Clear();
-                            
+
+                Console.WriteLine($"\nСейчас в колоде: {boss.Deck.Size} карты.\n");
+
                 boss.NumRaund++;
                 boss.GiveCards();
 
