@@ -110,13 +110,7 @@ namespace HomeWork1
                 Console.SetCursorPosition(Console.CursorLeft - 7, Console.CursorTop + 1);
                 Console.Write("[карт]]");
             }
-
-            // Принимает карту.
-            public void TakenCard(Card cd)
-            {
-                Deck.Enqueue(cd);
-                Size++;
-            }
+            
         }
 
 
@@ -126,9 +120,8 @@ namespace HomeWork1
         // Решает скидывать ли карты и их количество.
         // Если решил скидывать - отдаёт карту с минимальным значением,
         // вместо неё из колоды принимает другую.        
-        class Gamer //: Croupier
+        class Gamer 
         {    
-
             public int Summ { get; set; }
             public int Victory { get; set; }
             public List<Card> GamerCards { get; set; }
@@ -147,7 +140,7 @@ namespace HomeWork1
             }
 
             // Возвращает минимальную карту игрока.           
-            public Card FindMinCard(Croupier boss)
+            public Card GiveMinCard(Croupier boss)
             {
                 int min = GamerCards[0].Dignity;
                 int minIndex = 0;
@@ -174,7 +167,7 @@ namespace HomeWork1
                 return ret;
             }
 
-            // Принимает дополнительно первую карту из колоды.
+            // Принимает дополнительно карту из колоды.
             public void TakenAddCard(CardDeck deck, Croupier boss)
             {
                 Summ = Summ + deck.Deck.Peek().Dignity;
@@ -214,9 +207,6 @@ namespace HomeWork1
                 Console.WriteLine("\n-----------------------------------------------");
             }
         }
-
-
-
 
         // При создании - "открывает колоду"
         // и "бланк списка игроков".
@@ -336,7 +326,7 @@ namespace HomeWork1
                     for (int i = 0; i < gamer.Colution(); i++)
                     {
                         Console.WriteLine($"{AllGamer.FirstOrDefault(x => x.Value == gamer).Key}:\n");
-                        Deck.Deck.Enqueue(gamer.FindMinCard(boss));                                                
+                        Deck.Deck.Enqueue(gamer.GiveMinCard(boss));                                                
                         Deck.Size++;
                         Console.SetCursorPosition(Console.CursorLeft + 7, Console.CursorTop - 4);
                         boss.Deck.PrintShirt();
@@ -411,7 +401,7 @@ namespace HomeWork1
         // Создает крупье, регистрирует игроков.
         // Начало раунда - нумерует раунд, раздает карты.
         // Показывает карты игроков, если карты менялись показывает ещё раз.
-        // Выбирает победителя в раунде.
+        // Выбирает победителя в раунде. Если счет равный - побеждает первый по списку.
         // Показывает счёт игры, собирает карты.
         // Если есть 5-ти кратный победитель - объевляет и заканчивает игру,
         // если нет - возвращается к началу раунда.
@@ -430,12 +420,15 @@ namespace HomeWork1
 
                 Console.Clear();
                 Console.WriteLine();
+
                 boss.NumRaund++;
                 boss.Deck.PrintShirt();
                 Console.WriteLine();
+
                 boss.GiveCards();                
                 boss.ShowCards();
                 Console.WriteLine();
+
                 boss.Deck.PrintShirt();
                 Console.WriteLine("\n");
 
