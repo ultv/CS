@@ -13,31 +13,19 @@ namespace HomeWork1
         // Содержит "номинал" карты.
         // Выводит изображение карты в консоль.
         class Card
-        {
-            protected int dignity = 0;
-            protected bool inGame = false;
+        {             
+            public int Dignity { get; set; }
 
             public Card(int dign)
             {
-                dignity = dign;
-            }
-
-            public int Dignity
-            {
-                get { return dignity; }
-                set { dignity = value; }
-            }
-            public bool InGame
-            {
-                get { return inGame; }
-                set { inGame = value; }
-            }
-
+                Dignity = dign;
+            }           
+                 
             // Выводит карту и значение.
             // Десять выводим как римскую.
             public void PrintDignity()
             {               
-                if (dignity == 10)
+                if (Dignity == 10)
                 {
                     Console.Write(" ___");
                     Console.SetCursorPosition(Console.CursorLeft - 4, Console.CursorTop + 1);
@@ -53,14 +41,14 @@ namespace HomeWork1
                     Console.SetCursorPosition(Console.CursorLeft - 4, Console.CursorTop + 1);
                     Console.Write("[   ]");
                     Console.SetCursorPosition(Console.CursorLeft - 5, Console.CursorTop + 1);
-                    Console.Write("[ " + dignity + " ]");
+                    Console.Write("[ " + Dignity + " ]");
                     Console.SetCursorPosition(Console.CursorLeft - 5, Console.CursorTop + 1);
                     Console.Write("[___]");
                 }                                           
             }
 
-                // Выводит рубашку карты.
-                public void PrintShirt()
+            // Выводит рубашку карты.
+            public void PrintShirt()
             {
                 Console.WriteLine(" ___");
                 Console.WriteLine("[   ]");
@@ -70,18 +58,16 @@ namespace HomeWork1
             
         }
 
+
+
         // Заполняет колоду картами.
         // Выводит колоду в консоль.
         // Получает карту сброшенную игроком.
         class CardDeck : Queue<Card>
         {
-            protected int size = 0;
+            
             protected int maxSize = 36;
-            public int Size
-            {
-                get { return size; }
-                set { size = value; }
-            }
+            public int Size { get; set; }  
 
             // Заполняет созданную колоду картами.
             // Значения картам - присваиваются случайным образом, в диапазоне от 1 до 10.
@@ -93,7 +79,7 @@ namespace HomeWork1
                 {
                     Card cd = new Card(rnd.Next(1, 11));
                     this.Enqueue(cd);
-                    size++;
+                    Size++;
                 }
             }
 
@@ -106,6 +92,19 @@ namespace HomeWork1
                 }
             }
 
+            public void PrintCompact()
+            {
+                Console.Write("В колоде:");
+                Console.SetCursorPosition(Console.CursorLeft - 9, Console.CursorTop + 1);
+                Console.Write(" ___");
+                Console.SetCursorPosition(Console.CursorLeft - 4, Console.CursorTop + 1);
+                Console.Write("[   ]]]");
+                Console.SetCursorPosition(Console.CursorLeft - 7, Console.CursorTop + 1);
+                Console.Write("[ " + Size + " ]]");
+                Console.SetCursorPosition(Console.CursorLeft - 7, Console.CursorTop + 1);
+                Console.Write("[карт]]");             
+            }
+
             // Принимает карту.
             public void TakenCard(Card cd)
             {                
@@ -114,19 +113,21 @@ namespace HomeWork1
             }
         }
 
+
+
         // Содержит коллекцию карт, сумму своих карт, количество своих побед.
         // Получает карты из колоды.
         // Решает скидывать ли карты и их количество.
         // Если решил скидывать - отдаёт карту с минимальным значением,
         // вместо неё из колоды принимает другую.        
-        class Gamer
+        class Gamer //: Croupier
         {    
 
             public int Summ { get; set; }
             public int Victory { get; set; }
             public List<Card> GamerCards { get; set; }
 
-            public Gamer()
+            public Gamer( )
             {
                 GamerCards = new List<Card>();
             }
@@ -139,29 +140,8 @@ namespace HomeWork1
                 deck.Size--;                    
             }
 
-            // Принимает дополнительно первую карту из колоды.
-            public void TakenAddCard(CardDeck deck)
-            {
-                Summ = Summ + deck.Peek().Dignity;
-                Console.WriteLine("Принимаю карту: ");
-                Console.SetCursorPosition(Console.CursorLeft + 20, Console.CursorTop + 0);
-                deck.Peek().PrintDignity();
-                Console.WriteLine("\n");
-                GamerCards.Add(deck.Dequeue());
-                deck.Size--;
-            }
-
-            // Возвращает количество скидываемых карт.
-            // Если 0 - карты не скидывает.
-            public int Colution()
-            {
-                Random rnd = new Random();
-
-                return rnd.Next(0, 3);
-            }
-
             // Возвращает минимальную карту игрока.           
-            public Card FindMinCard()
+            public Card FindMinCard(Croupier boss)
             {
                 int min = GamerCards[0].Dignity;
                 int minIndex = 0;
@@ -172,7 +152,7 @@ namespace HomeWork1
                     if (min > cd.Dignity)
                     {
                         min = cd.Dignity;
-                        minIndex = index; 
+                        minIndex = index;
                     }
 
                     index++;
@@ -181,18 +161,41 @@ namespace HomeWork1
                 Card ret = new Card(0);
                 ret = GamerCards[minIndex];
                 Summ = Summ - ret.Dignity;
-                Console.WriteLine("Скидываю карту:");                
-                ret.PrintDignity();
-                Console.SetCursorPosition(Console.CursorLeft + 15, Console.CursorTop - 4);                
+                Console.WriteLine("Скидываю:");
+                ret.PrintDignity();         
                 GamerCards.RemoveAt(minIndex);
 
                 return ret;
             }
 
+            // Принимает дополнительно первую карту из колоды.
+            public void TakenAddCard(CardDeck deck, Croupier boss)
+            {
+                Summ = Summ + deck.Peek().Dignity;
+                Console.WriteLine("Принимаю: ");
+                Console.SetCursorPosition(Console.CursorLeft + 26, Console.CursorTop + 0);
+                deck.Peek().PrintDignity();
+                GamerCards.Add(deck.Dequeue());
+                deck.Size--;
+                Console.SetCursorPosition(Console.CursorLeft + 7, Console.CursorTop - 4);
+                boss.Deck.PrintCompact();           
+                Console.WriteLine("\n");
+                
+            }
+
+            // Возвращает количество скидываемых карт.
+            // Если 0 - карты не скидывает.
+            public int Colution()
+            {
+                Random rnd = new Random();
+
+                return rnd.Next(0, 3);
+            }            
+
             // Выводит все свои карты и сумму.
             public void Info(string name)
             {
-                Console.WriteLine("-----------------------------------------------\n");
+                Console.WriteLine("\n-----------------------------------------------\n");
                 //Console.WriteLine("Карты игрока " + name + ". " + "Сумма карт: " + this.Summ);
                 Console.WriteLine($"Карты игрока {name}. Сумма карт: {this.Summ}");
 
@@ -202,9 +205,12 @@ namespace HomeWork1
                     Console.SetCursorPosition(Console.CursorLeft + 3, Console.CursorTop - 3);
                 }
                 Console.WriteLine("\n\n\n");
-                Console.WriteLine("\n-----------------------------------------------\n");
+                Console.WriteLine("\n-----------------------------------------------");
             }
         }
+
+
+
 
         // При создании - "открывает колоду"
         // и "бланк списка игроков".
@@ -314,7 +320,7 @@ namespace HomeWork1
             }
 
             // Помогает игрокам скинуть карты .
-            public bool WillReturnCards( )
+            public bool WillReturnCards(Croupier boss)
             {
                 bool solution = false;
                 
@@ -324,10 +330,13 @@ namespace HomeWork1
                     for (int i = 0; i < gamer.Colution(); i++)
                     {
                         Console.WriteLine($"{AllGamer.FirstOrDefault(x => x.Value == gamer).Key}:\n");
-                        Deck.Enqueue(gamer.FindMinCard());
-                        Deck.Size++; //???
-                        gamer.TakenAddCard(Deck);
+                        Deck.Enqueue(gamer.FindMinCard(boss));                                                
+                        Deck.Size++;
+                        Console.SetCursorPosition(Console.CursorLeft + 7, Console.CursorTop - 4);
+                        boss.Deck.PrintCompact();
+                        Console.SetCursorPosition(Console.CursorLeft + 7, Console.CursorTop - 4);
                         solution = true;
+                        gamer.TakenAddCard(Deck, boss);
                     }
                 }
 
@@ -350,7 +359,7 @@ namespace HomeWork1
                     }
                 }
 
-                Console.Write($"{NumRaund} раунд выиграл - {vic} !\n\n");
+                Console.Write($"\n{NumRaund} раунд выиграл - {vic} !\n\n");
                 AllGamer[vic].Victory++;
             }
 
@@ -414,24 +423,24 @@ namespace HomeWork1
             {
 
                 Console.Clear();
-
-                Console.WriteLine($"\nСейчас в колоде: {boss.Deck.Size} карты.\n");
-
+                Console.WriteLine();
                 boss.NumRaund++;
-                boss.GiveCards();
-
-                Console.WriteLine($"\nСейчас в колоде: {boss.Deck.Size} карты.\n");
-
+                boss.Deck.PrintCompact();
+                Console.WriteLine();
+                boss.GiveCards();                
                 boss.ShowCards();
-                
+                Console.WriteLine();
+                boss.Deck.PrintCompact();
+                Console.WriteLine("\n");
+
                 // Если игроки поменяли карты - выводим карты игроков ещё раз.
-                if (boss.WillReturnCards())
+                if (boss.WillReturnCards(boss))
                 {
                     boss.ShowCards();                 
                 }
                 else
                 {
-                    Console.WriteLine("Игроки не стали менять карты.\n");
+                    Console.WriteLine("Игроки не стали менять карты.");
                 }    
 
                 boss.SelectRoundVictory();
