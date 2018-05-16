@@ -9,22 +9,24 @@ namespace HomeWork1
 {
     class Program
     {
-        
+
         // Содержит "номинал" карты.
         // Выводит изображение карты в консоль.
         class Card
-        {             
+        {
             public int Dignity { get; set; }
+
+            public Card() { }
 
             public Card(int dign)
             {
                 Dignity = dign;
-            }           
-                 
+            }
+
             // Выводит карту и значение.
             // Десять выводим как римскую.
-            public void PrintDignity()
-            {               
+            public virtual void PrintDignity()
+            {
                 if (Dignity == 10)
                 {
                     Console.Write(" ___");
@@ -44,18 +46,18 @@ namespace HomeWork1
                     Console.Write("[ " + Dignity + " ]");
                     Console.SetCursorPosition(Console.CursorLeft - 5, Console.CursorTop + 1);
                     Console.Write("[___]");
-                }                                           
+                }
             }
 
             // Выводит рубашку карты.
-            public void PrintShirt()
+            public virtual void PrintShirt()
             {
                 Console.WriteLine(" ___");
                 Console.WriteLine("[   ]");
                 Console.WriteLine("[ ? ]");
                 Console.WriteLine("[___]");
             }
-            
+
         }
 
 
@@ -63,36 +65,40 @@ namespace HomeWork1
         // Заполняет колоду картами.
         // Выводит колоду в консоль.
         // Получает карту сброшенную игроком.
-        class CardDeck : Queue<Card>
+        class CardDeck : Card
         {
-            
+
             protected int maxSize = 36;
-            public int Size { get; set; }  
+            public int Size { get; set; }
+            public Queue<Card> Deck { get; set; }
 
             // Заполняет созданную колоду картами.
             // Значения картам - присваиваются случайным образом, в диапазоне от 1 до 10.
             public CardDeck()
             {
+                Deck = new Queue<Card>();
+
                 Random rnd = new Random();
 
                 for (int i = 0; i < maxSize; i++)
                 {
                     Card cd = new Card(rnd.Next(1, 11));
-                    this.Enqueue(cd);
+                    Deck.Enqueue(cd);
                     Size++;
                 }
             }
 
             // Выводит колоду с картами.
-            public void Print()
+            public override void PrintDignity()
             {
-                foreach (Card cd in this)
+                foreach (Card cd in Deck)
                 {
                     cd.PrintDignity();
                 }
             }
 
-            public void PrintCompact()
+            // Выводит "рубашку" колоды с количеством карт в колоде.
+            public override void PrintShirt()
             {
                 Console.Write("В колоде:");
                 Console.SetCursorPosition(Console.CursorLeft - 9, Console.CursorTop + 1);
@@ -102,13 +108,13 @@ namespace HomeWork1
                 Console.SetCursorPosition(Console.CursorLeft - 7, Console.CursorTop + 1);
                 Console.Write("[ " + Size + " ]]");
                 Console.SetCursorPosition(Console.CursorLeft - 7, Console.CursorTop + 1);
-                Console.Write("[карт]]");             
+                Console.Write("[карт]]");
             }
 
             // Принимает карту.
             public void TakenCard(Card cd)
-            {                
-                Enqueue(cd);
+            {
+                Deck.Enqueue(cd);
                 Size++;
             }
         }
@@ -135,8 +141,8 @@ namespace HomeWork1
             // Принимает при раздаче карту из колоды.
             public void TakenCard(CardDeck deck)
             {
-                Summ = Summ + deck.Peek().Dignity;              
-                GamerCards.Add(deck.Dequeue());
+                Summ = Summ + deck.Deck.Peek().Dignity;              
+                GamerCards.Add(deck.Deck.Dequeue());
                 deck.Size--;                    
             }
 
@@ -171,14 +177,14 @@ namespace HomeWork1
             // Принимает дополнительно первую карту из колоды.
             public void TakenAddCard(CardDeck deck, Croupier boss)
             {
-                Summ = Summ + deck.Peek().Dignity;
+                Summ = Summ + deck.Deck.Peek().Dignity;
                 Console.WriteLine("Принимаю: ");
                 Console.SetCursorPosition(Console.CursorLeft + 26, Console.CursorTop + 0);
-                deck.Peek().PrintDignity();
-                GamerCards.Add(deck.Dequeue());
+                deck.Deck.Peek().PrintDignity();
+                GamerCards.Add(deck.Deck.Dequeue());
                 deck.Size--;
                 Console.SetCursorPosition(Console.CursorLeft + 7, Console.CursorTop - 4);
-                boss.Deck.PrintCompact();           
+                boss.Deck.PrintShirt();           
                 Console.WriteLine("\n");
                 
             }
@@ -330,10 +336,10 @@ namespace HomeWork1
                     for (int i = 0; i < gamer.Colution(); i++)
                     {
                         Console.WriteLine($"{AllGamer.FirstOrDefault(x => x.Value == gamer).Key}:\n");
-                        Deck.Enqueue(gamer.FindMinCard(boss));                                                
+                        Deck.Deck.Enqueue(gamer.FindMinCard(boss));                                                
                         Deck.Size++;
                         Console.SetCursorPosition(Console.CursorLeft + 7, Console.CursorTop - 4);
-                        boss.Deck.PrintCompact();
+                        boss.Deck.PrintShirt();
                         Console.SetCursorPosition(Console.CursorLeft + 7, Console.CursorTop - 4);
                         solution = true;
                         gamer.TakenAddCard(Deck, boss);
@@ -381,7 +387,7 @@ namespace HomeWork1
                 {
                     foreach (Gamer gamer in AllGamer.Values)
                     {
-                        Deck.Enqueue(gamer.GamerCards[i]);
+                        Deck.Deck.Enqueue(gamer.GamerCards[i]);
                         Deck.Size++;
                         gamer.Summ = gamer.Summ - gamer.GamerCards[i].Dignity;
                         gamer.GamerCards.RemoveAt(i);
@@ -425,12 +431,12 @@ namespace HomeWork1
                 Console.Clear();
                 Console.WriteLine();
                 boss.NumRaund++;
-                boss.Deck.PrintCompact();
+                boss.Deck.PrintShirt();
                 Console.WriteLine();
                 boss.GiveCards();                
                 boss.ShowCards();
                 Console.WriteLine();
-                boss.Deck.PrintCompact();
+                boss.Deck.PrintShirt();
                 Console.WriteLine("\n");
 
                 // Если игроки поменяли карты - выводим карты игроков ещё раз.
