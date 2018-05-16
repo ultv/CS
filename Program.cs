@@ -9,6 +9,10 @@ namespace HomeWork1
 {
     class Program
     {
+        static string LogPath;
+        static FileStream LogFile;
+        static StreamWriter LogWriter;              
+
         // Используется для передачи сведений в каком элементе или элементах матрицы одинаковые значения.
         enum Element { Rows, Col, MainDiag, SecDiag, RowsCol, RowsMainDiag, RowsSecDiag, ColMainDiag, ColSecDiag, DiagDiag }
 
@@ -20,8 +24,16 @@ namespace HomeWork1
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
+        // Выводит историю в файл.
+        interface ILogStepGame
+        {
+            bool FileIsLocked(string path, FileAccess access);
+            void PrintLogFile( );
+            void PrintLogFile(string line);
+        }
+
         // Осуществляет все операции над матрицей.
-        class Matrix
+        class Matrix : ILogStepGame
         {
             protected int[,] massiv;
             protected int num = 2;
@@ -43,18 +55,67 @@ namespace HomeWork1
             // Выводит матрицу на экран.
             public void Print()
             {
-                Console.WriteLine('\n' + "Массив:" + '\n');
+
+                Console.WriteLine("\nМассив:\n");              
 
                 for (int i = 0; i < num; i++)
                 {
                     for (int j = 0; j < num; j++)
                     {
-                        Console.Write(massiv[i, j] + "\t");
+                        Console.Write(massiv[i, j] + "\t");                        
                     }
-                    Console.WriteLine();
+                    Console.WriteLine();                    
                 }
 
-                Console.WriteLine('\n');
+                Console.WriteLine("\n");                
+            }
+
+            // Выводит матрицу в файл.
+            public void PrintLogFile( )
+            {
+                LogWriter.Write("\nМассив:\n");
+
+                for (int i = 0; i < num; i++)
+                {
+                    for (int j = 0; j < num; j++)
+                    {
+                        LogWriter.Write(massiv[i, j].ToString() + "\t");
+                    }                    
+                    LogWriter.Write("\n");
+                }
+                
+                LogWriter.Write("\n\n");
+            }
+                        
+            // Принимает строку и выводит в файл.
+            public void PrintLogFile(string line)
+            {
+                LogWriter.Write(line);                                               
+            }
+            
+            // Возвращает истину если файл не удаётся открыть.
+            public bool FileIsLocked(string path, FileAccess access)
+            {
+                try
+                {
+                    FileStream fs = new FileStream(Directory.GetCurrentDirectory() + "\\LogCardCame.txt", FileMode.Append, FileAccess.Write);
+                    fs.Close();
+                    return false;
+                }                
+                catch (UnauthorizedAccessException)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\nОтсутствует доступ к файлу. История не будет сохранена.");
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    return true;
+                }
+                catch (IOException)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\nОтсутствует доступ к файлу. История не будет сохранена.");
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    return true;
+                }
             }
 
             // Выводит матрицу на экран c подсветкой заданных элементов матрицы.
@@ -153,7 +214,7 @@ namespace HomeWork1
                 int j = 0;
                 int val = -1;
 
-                Console.WriteLine("Введите номер строки: ");
+                Console.WriteLine("Введите номер строки:\n");
 
                 while ((i < 1) || (i > num))
                 {
@@ -162,16 +223,16 @@ namespace HomeWork1
                         i = Int32.Parse(Console.ReadLine());
 
                         if ((i < 1) || (i > num))
-                            PrintErrorMessage("\nНомер должен быть числовым значением в диапазоне от 1 до " + num + ". Повторите ввод: ");
+                            PrintErrorMessage("\nНомер должен быть числовым значением в диапазоне от 1 до " + num + ". Повторите ввод:\n");
                     }
                     catch
                     {
-                        PrintErrorMessage("\nНомер должен быть числовым значением в диапазоне от 1 до " + num + ". Повторите ввод: ");
+                        PrintErrorMessage("\nНомер должен быть числовым значением в диапазоне от 1 до " + num + ". Повторите ввод:\n");
                     }
 
                 }
 
-                Console.WriteLine("Введите номер элемента в строке: ");
+                Console.WriteLine("\nВведите номер элемента в строке:\n");
 
 
                 while ((j < 1) || (j > num))
@@ -181,16 +242,16 @@ namespace HomeWork1
                         j = Int32.Parse(Console.ReadLine());
 
                         if ((j < 1) || (j > num))
-                            PrintErrorMessage("\nНомер должен быть числовым значением в диапазоне от 1 до " + num + ". Повторите ввод: ");
+                            PrintErrorMessage("\nНомер должен быть числовым значением в диапазоне от 1 до " + num + ". Повторите ввод:\n");
                     }
                     catch
                     {
-                        PrintErrorMessage("\nНомер должен быть числовым значением в диапазоне от 1 до " + num + ". Повторите ввод: ");
+                        PrintErrorMessage("\nНомер должен быть числовым значением в диапазоне от 1 до " + num + ". Повторите ввод:\n");
                     }
                 }
 
 
-                Console.WriteLine("Введите [" + i + "," + j + "] элемент массива");
+                Console.WriteLine("\nВведите [" + i + "," + j + "] элемент массива\n");
 
                 while ((val != 0) && (val != 1))
                 {
@@ -199,12 +260,12 @@ namespace HomeWork1
                         val = Int32.Parse(Console.ReadLine());
                         if ((val != 0) && (val != 1))
                             PrintErrorMessage("Элемент может иметь только одно из числовых значений (0 или 1)." +
-                                "\nПовторите ввод для [" + i + "," + j + "] элемента массива: ");
+                                "\nПовторите ввод для [" + i + "," + j + "] элемента массива:\n");
                     }
                     catch
                     {
                         PrintErrorMessage("Элемент может иметь только одно из числовых значений (0 или 1)." +
-                                "\nПовторите ввод для [" + i + "," + j + "] элемента массива: ");
+                                "\nПовторите ввод для [" + i + "," + j + "] элемента массива:\n");
 
                     }
                 }
@@ -289,6 +350,8 @@ namespace HomeWork1
         }
 
 
+       
+
 
         // По введённым индексам и значениям элементов присваивает значения элементам матрицы.
         // Проверяет равенство каждого нового элемента на равенство с элементами в столбцах, строках и диагоналях матрицы.
@@ -305,7 +368,7 @@ namespace HomeWork1
             bool exitSecDiag = false;
 
             Console.Title = "С# поток 7. Домашнее задание №1. Выполнил: Седов А.П.";
-            Console.WriteLine("\nВведите количество элементов массива: ");
+            Console.WriteLine("\nВведите количество элементов массива:\n");
 
             while (count < 2)
             {
@@ -314,18 +377,28 @@ namespace HomeWork1
                     count = Int32.Parse(Console.ReadLine());
                     if (count < 2)
                     {
-                        PrintErrorMessage("\nРазмерность матрицы должна иметь числовое значение не менее 2. Повторите ввод: ");
+                        PrintErrorMessage("\nРазмерность матрицы должна иметь числовое значение не менее 2. Повторите ввод:\n");
                     }
                 }
                 catch
                 {
-                    PrintErrorMessage("\nРазмерность матрицы должна иметь числовое значение не менее 2. Повторите ввод: ");
+                    PrintErrorMessage("\nРазмерность матрицы должна иметь числовое значение не менее 2. Повторите ввод:\n");
                 }
 
             }
 
-
+            
             Matrix mat = new Matrix(count);
+
+            if(!mat.FileIsLocked(Directory.GetCurrentDirectory() + "\\LogCardCame.txt", FileAccess.Read))
+            {
+                LogPath = Directory.GetCurrentDirectory() + "\\LogCardCame.txt";
+                LogFile = new FileStream(LogPath, FileMode.Append);
+                LogWriter = new StreamWriter(LogFile);
+                mat.PrintLogFile(DateTime.Now.ToString() + "\n");
+                mat.PrintLogFile();
+            }            
+            
             mat.Print();
 
             int[] index = new int[2];
@@ -352,6 +425,11 @@ namespace HomeWork1
                 }
 
                 mat.Print();
+
+                if (LogWriter != null)
+                {
+                    mat.PrintLogFile();                 
+                }
 
             } while (!exitRows && !exitCol && !exitMainDiag && !exitSecDiag);
 
@@ -398,6 +476,12 @@ namespace HomeWork1
             }
             else
                 mat.Print();
+
+            if(LogWriter != null)
+            {         
+                LogWriter.Close();
+            }
+                
 
             Console.WriteLine("Программа успешно завершена.");
             Console.ReadKey();
