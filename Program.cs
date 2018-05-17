@@ -14,7 +14,8 @@ namespace HomeWork1
         {
             public string Name { get; set; }
             public List<Client> Clients { get; set; }
-            public int Commission { get; set; }
+            private const int Commission = 3;
+            private int Profit { get; set; }
 
             public Bank( ) { }
 
@@ -29,17 +30,20 @@ namespace HomeWork1
             {
                 Client client = new Client(name);
                 Clients.Add(client);
+                Console.WriteLine($"\n------------------------------------------------ ");                
                 Console.WriteLine($"\n{Name} зарегистрировал нового клиента - {client.Name}.");
             }
 
             public void MessageOpenBank( )
             {
+                Console.WriteLine($"\n------------------------------------------------ ");
                 Console.WriteLine($"\n{Name} открыл новое отделение.");
+                Console.WriteLine($"\nТекущий доход {Name}а составляет {Profit} рублей.");
             }
 
             public void OpenAccount(string name, int id, int money)
             {
-                Account account = new Account(id, money);
+                Account account = new Account(id, money);                
 
                 foreach(Client client in Clients)
                 {
@@ -47,8 +51,9 @@ namespace HomeWork1
                     {
                         client.Accounts.Add(account);                        
                     }
-                }                
-                Console.WriteLine($"\n{name} открыл новый счёт - №{id} в {Name}.");
+                }
+                Console.WriteLine($"\n-------------- {account.whenOpen.ToString()} -------------- ");
+                Console.WriteLine($"\n{name} открыл новый счёт - №{id} в {Name}. Баланс счёта {account.Balance} рублей.");
             }
 
             public void PutMoney(int id, int money)
@@ -68,6 +73,7 @@ namespace HomeWork1
                         }
                     }                    
                 }
+                Console.WriteLine($"\n------------------------------------------------ ");
                 Console.WriteLine($"\n{name} пополнил счёт - №{id} в {Name} на {money} рублей. Баланс - {balance} рублей.");
             }
 
@@ -95,7 +101,7 @@ namespace HomeWork1
                     }
 
                 }
-
+                Console.WriteLine($"\n------------------------------------------------ ");
                 Console.WriteLine($"\n{name} перевел в {Name} - {money} рублей со счёта №{from} на счёт №{to}.");
                 Console.WriteLine($"\nБаланс счёта №{from} составляет {balansFrom} рублей.");
                 Console.WriteLine($"\nБаланс счёта №{to} составляет {balansTo} рублей.");                
@@ -107,6 +113,7 @@ namespace HomeWork1
                 string nameTo = "";
                 int balansFrom = 0;
                 int balansTo = 0;
+                int commission = 0;
 
                 foreach (Client client in Clients)
                 {
@@ -114,7 +121,10 @@ namespace HomeWork1
                     {
                         if (from == account.ID)
                         {
-                            account.Balance = account.Balance - money;
+                            commission = (money / 100) * Commission;                            
+                            Profit = Profit + commission;
+
+                            account.Balance = account.Balance - money - commission;
                             balansFrom = account.Balance;
                             nameFrom = client.Name;
                         }                        
@@ -133,10 +143,12 @@ namespace HomeWork1
                         }
                     }
                 }
-
-                Console.WriteLine($"\n{nameFrom} перевел из {Name} - {money} рублей\nсо счёта №{from} на счёт №{to} в {bank.Name} {nameTo}");
+                Console.WriteLine($"\n------------------------------------------------ ");
+                Console.WriteLine($"\n{nameFrom} перевел из {Name} - {money} рублей\n\nсо счёта №{from} на счёт №{to} в {bank.Name} {nameTo}");
+                Console.WriteLine($"\nКомиссия за перевод составила {commission} рублей.\n\nТекущий доход {Name}а  составляет {Profit} рублей.");
                 Console.WriteLine($"\nБаланс счёта №{from} составляет {balansFrom} рублей.");
                 Console.WriteLine($"\nБаланс счёта №{to} составляет {balansTo} рублей.");
+                
             }
         }
 
@@ -158,6 +170,7 @@ namespace HomeWork1
         {
             public int ID { get; set; }
             public int Balance { get; set; }
+            public DateTime whenOpen;            
 
             public Account( ) { }
 
@@ -165,7 +178,7 @@ namespace HomeWork1
             {
                 ID = id;
                 Balance = money;
-                Console.WriteLine($"\nНа созданном счету №{id} находится {Balance} рублей.");
+                whenOpen = DateTime.Now;                                
             }
         }
 
@@ -185,12 +198,15 @@ namespace HomeWork1
             sber.InternalTransfer(1001, 1002, 150);
 
             Bank alfa = new Bank("Альфа-банк");
+
             alfa.RegClient("Александр");
             alfa.OpenAccount("Александр", 2001, 50);
             alfa.PutMoney(2001, 500);
 
             sber.ExternalTransfer(1002, 2001, alfa, 100);
             alfa.ExternalTransfer(2001, 1001, sber, 200);
+            alfa.ExternalTransfer(2001, 1001, sber, 100);
+            alfa.ExternalTransfer(2001, 1001, sber, 100);
 
             alfa.RegClient("Дмитрий");
             alfa.OpenAccount("Дмитрий", 2002, 500);
