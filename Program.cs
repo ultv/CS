@@ -101,6 +101,43 @@ namespace HomeWork1
                 Console.WriteLine($"\nБаланс счёта №{to} составляет {balansTo} рублей.");                
             }
 
+            public void ExternalTransfer(int from, int to, Bank bank, int money)
+            {
+                string nameFrom = "";
+                string nameTo = "";
+                int balansFrom = 0;
+                int balansTo = 0;
+
+                foreach (Client client in Clients)
+                {
+                    foreach (Account account in client.Accounts)
+                    {
+                        if (from == account.ID)
+                        {
+                            account.Balance = account.Balance - money;
+                            balansFrom = account.Balance;
+                            nameFrom = client.Name;
+                        }                        
+                    }
+                }
+
+                foreach (Client client in bank.Clients)
+                {
+                    foreach (Account account in client.Accounts)
+                    {                        
+                        if (to == account.ID)
+                        {
+                            account.Balance = account.Balance + money;
+                            balansTo = account.Balance;
+                            nameTo = client.Name;
+                        }
+                    }
+                }
+
+                Console.WriteLine($"\n{nameFrom} перевел из {Name} - {money} рублей\nсо счёта №{from} на счёт №{to} в {bank.Name} {nameTo}");
+                Console.WriteLine($"\nБаланс счёта №{from} составляет {balansFrom} рублей.");
+                Console.WriteLine($"\nБаланс счёта №{to} составляет {balansTo} рублей.");
+            }
         }
 
         class Client
@@ -144,19 +181,21 @@ namespace HomeWork1
             sber.OpenAccount("Александр", 1001, 100);
             sber.PutMoney(1001, 200);
 
+            sber.OpenAccount("Александр", 1002, 200);
+            sber.InternalTransfer(1001, 1002, 150);
+
             Bank alfa = new Bank("Альфа-банк");
             alfa.RegClient("Александр");
             alfa.OpenAccount("Александр", 2001, 50);
             alfa.PutMoney(2001, 500);
 
-            sber.OpenAccount("Александр", 1002, 200);
-            sber.InternalTransfer(1001, 1002, 150);
+            sber.ExternalTransfer(1002, 2001, alfa, 100);
+            alfa.ExternalTransfer(2001, 1001, sber, 200);
 
+            alfa.RegClient("Дмитрий");
+            alfa.OpenAccount("Дмитрий", 2002, 500);
 
-
-
-
-
+            sber.ExternalTransfer(1001, 2002, alfa, 100);          
 
             Console.ReadKey();
 
