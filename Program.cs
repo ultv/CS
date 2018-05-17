@@ -9,86 +9,128 @@ namespace HomeWork1
 {
     class Program
     {
-        // Взаимодействует с пользователем в консоли.
-        class User
-        {
-            protected int num = 3;
-
-            public int Num
-            {
-                get { return num; }
-                set { num = value; }
-            }
-
-            // Принимает значение разрядности матрицы.
-            public void SetNum()
-            {
-                Console.WriteLine("Введите количество элементов массива: ");
-                num = Int32.Parse(Console.ReadLine());
-            }                        
-        }
-
         
-        // Осуществляет все операции над матрицей.
-        class Matrix : User
-        {            
-            protected int[,] massiv;
+        class Bank
+        {
+            public string Name { get; set; }
+            public List<Client> Clients { get; set; }
+            public int Commission { get; set; }
 
-            public Matrix()
-            {               
-                massiv = new int[num, num];
+            public Bank( ) { }
 
-                for (int i = 0; i < num; i++)
-                    for (int j = 0; j < num; j++)
-                    {
-                        massiv[i, j] = -1;
-                    }
+            public Bank(string name)
+            {
+                Name = name;
+                Clients = new List<Client>();
+                MessageOpenBank();
             }
 
-
-            // Заполняет матрицу значением по умолчанию.
-            public Matrix(int n)
+            public void RegClient(string name)
             {
-                num = n;
-                massiv = new int[n, n];
-
-                for (int i = 0; i < num; i++)
-                    for (int j = 0; j < num; j++)
-                    {
-                        massiv[i, j] = -1;
-                    }
+                Client client = new Client(name);
+                Clients.Add(client);
+                Console.WriteLine($"\n{Name} зарегистрировал нового клиента - {client.Name}.");
             }
 
-            // Выводит матрицу на экран.
-            public void Print()
+            public void MessageOpenBank( )
             {
-                Console.WriteLine('\n' + "Массив:" + '\n');
+                Console.WriteLine($"\n{Name} открыл новое отделение.");
+            }
 
-                for (int i = 0; i < num; i++)
+            public void OpenAccount(string name, int id, int money)
+            {
+                Account account = new Account(id, money);
+
+                foreach(Client client in Clients)
                 {
-                    for (int j = 0; j < num; j++)
+                    if(name == client.Name)
                     {
-                        Console.Write(massiv[i, j] + " ");
+                        client.Accounts.Add(account);                        
                     }
-                    Console.WriteLine();
+                }                
+                Console.WriteLine($"\n{name} открыл новый счёт - №{id} в {Name}.");
+            }
+
+            public void PutMoney(int id, int money)
+            {
+                string name = "";
+                int balance = 0;
+
+                foreach (Client client in Clients)
+                {
+                    foreach (Account account in client.Accounts)
+                    {
+                        if (id == account.ID)
+                        {
+                            account.Balance = account.Balance + money;
+                            name = client.Name;
+                            balance = account.Balance;
+                        }
+                    }                    
+                }
+                Console.WriteLine($"\n{name} пополнил счёт - №{id} в {Name} на {money} рублей. Баланс - {balance} рублей.");
+            }
+
+            public void InternalTransfer(int from, int to, int money)
+            {
+                string name = "";
+                int balansFrom = 0;
+                int balansTo = 0;
+
+                foreach (Client client in Clients)
+                {
+                    foreach(Account account in client.Accounts)
+                    {
+                        if (from == account.ID)
+                        {
+                            account.Balance = account.Balance - money;
+                            balansFrom = account.Balance;
+                            name = client.Name;
+                        }
+                        if (to == account.ID)
+                        {
+                            account.Balance = account.Balance + money;
+                            balansTo = account.Balance;
+                        }
+                    }
+
                 }
 
-                Console.WriteLine('\n');
-            }
-
-            // Заполняет матрицу введёнными значениями.
-            public void Read()
-            {
-                for (int i = 0; i < num; i++)
-                    for (int j = 0; j < num; j++)
-                    {
-                        Console.WriteLine("Введите [" + i + "," + j + "] элемент массива");
-                        massiv[i, j] = Int32.Parse(Console.ReadLine());
-                    }
+                Console.WriteLine($"\n{name} перевел в {Name} - {money} рублей со счёта №{from} на счёт №{to}.");
+                Console.WriteLine($"\nБаланс счёта №{from} составляет {balansFrom} рублей.");
+                Console.WriteLine($"\nБаланс счёта №{to} составляет {balansTo} рублей.");                
             }
 
         }
 
+        class Client
+        {
+            public string Name { get; set; }
+            public List<Account> Accounts { get; set; }
+
+            public Client( ) { }
+
+            public Client(string name)
+            {
+                Accounts = new List<Account>();
+                Name = name;
+            }           
+        }
+
+        class Account
+        {
+            public int ID { get; set; }
+            public int Balance { get; set; }
+
+            public Account( ) { }
+
+            public Account(int id, int money)
+            {
+                ID = id;
+                Balance = money;
+                Console.WriteLine($"\nНа созданном счету №{id} находится {Balance} рублей.");
+            }
+        }
 
 
 
@@ -96,13 +138,20 @@ namespace HomeWork1
         static void Main(string[] args)
         {
 
-            User usr = new User();
-            usr.SetNum();
+            Bank sber = new Bank("Сбербанк");
 
-            Matrix mat = new Matrix(usr.Num);
-            mat.Print();
-            mat.Read();
-            mat.Print();
+            sber.RegClient("Александр");
+            sber.OpenAccount("Александр", 1001, 100);
+            sber.PutMoney(1001, 200);
+
+            Bank alfa = new Bank("Альфа-банк");
+            alfa.RegClient("Александр");
+            alfa.OpenAccount("Александр", 2001, 50);
+            alfa.PutMoney(2001, 500);
+
+            sber.OpenAccount("Александр", 1002, 200);
+            sber.InternalTransfer(1001, 1002, 150);
+
 
 
 
