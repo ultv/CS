@@ -13,6 +13,7 @@ namespace HomeWork1
     class Program
     {
         static string delimiter = "--------------------";
+        static int positionContent = 15;
 
         // Счёт клиента.
         class Account
@@ -88,14 +89,89 @@ namespace HomeWork1
                 Console.WriteLine($"\n{delimiter} {bank.DataOpen.ToLongDateString()} {delimiter}");
                 Console.WriteLine($"\n{bank.Name} зарегистрирован в системе управлениеями банками.");
             }
+
+            public void ShowBanks()
+            {
+                Console.Clear();
+                Console.SetCursorPosition(0, positionContent);
+                Console.WriteLine($"\nВ системе управления банками зарегистрированы:");
+
+                foreach (Bank bank in Banks)
+                {                    
+                    Console.WriteLine($"\n{bank.Name}");
+                }
+            }
         }
 
+        // 
+        class Menu
+        {
+            
+            protected bool exit = false;
+            bool correctIn = false;
+            int choice = -1;
 
+            public Menu(ControlBank dep)
+            {                
+
+                while (!exit)
+                {                    
+                    Console.SetCursorPosition(0, 0);                    
+                    Console.WriteLine("\nДоступные действия:");
+                    Console.WriteLine("\n1 - Показать банки.");
+                    Console.WriteLine("\n2 - Показать клиентов.");
+                    Console.WriteLine("\n3 - Зарегистрировать клиента.");
+                    Console.WriteLine("\n0 - Выход.");
+                    Console.WriteLine($"\n{delimiter}\n");
+
+                    while (!correctIn)
+                    {
+                        try
+                        {
+                            choice = Int32.Parse(Console.ReadLine());
+
+                            if ((choice < 0) || (choice > 3))
+                            {
+                                correctIn = false;
+                                Console.WriteLine("\nНеверное значение. Повторите ввод:\n");
+                            }
+                            else correctIn = true;
+                        }
+                        catch
+                        {
+                            correctIn = false;
+                            Console.WriteLine("\nНеверное значение. Повторите ввод:\n");
+                        }
+                                               
+                    }
+
+                    correctIn = false;                                        
+
+                    switch(choice )
+                    {
+                        case 1:
+                            dep.ShowBanks();
+                            break;
+                        case 2:
+
+                            break;
+                        case 3:
+
+                            break;
+                        case 0:
+                            exit = true;
+                            break;
+                    }
+                }
+            }
+        }
 
 
 
         static void Main(string[] args)
         {
+            Console.Clear();
+            Console.WindowHeight = 50;
 
             ControlBank departament = new ControlBank();
 
@@ -108,10 +184,11 @@ namespace HomeWork1
             Bank vtb = new Bank("ВТБ", 7303, "Ульяновск", "Сидоров");
             departament.RegBank(vtb);
 
-
-
-
             Console.ReadKey();
+            Console.Clear();
+
+            Menu menu = new Menu(departament); 
+
 
         }
     }
