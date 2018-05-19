@@ -202,7 +202,8 @@ namespace HomeWork1
                     Console.WriteLine("\n3 - Зарегистрировать клиента.");
                     Console.WriteLine("\n4 - Показать клиентов банка.");
                     Console.WriteLine("\n5 - Открыть счёт.");
-                    Console.WriteLine("\n6 - Показать счета клиента.");                    
+                    Console.WriteLine("\n6 - Показать счета клиента.");
+                    Console.WriteLine("\n7 - Показать подробную инормацию.");
                     Console.WriteLine("\n0 - Выход.");
                     Console.WriteLine($"\n{delimiter}{delimiter}\n");
 
@@ -212,7 +213,7 @@ namespace HomeWork1
                         {
                             choice = Int32.Parse(Console.ReadLine());
 
-                            if ((choice < 0) || (choice > 6))
+                            if ((choice < 0) || (choice > 7))
                             {
                                 correctIn = false;
                                 Console.WriteLine("\nНеверное значение. Повторите ввод:\n");
@@ -260,6 +261,11 @@ namespace HomeWork1
                         case 6:
 
                             ItemShowAccount(dep);
+                            break;
+
+                        case 7:
+
+                            ItemShowDetail(dep);
                             break;
 
                         case 0:
@@ -412,6 +418,25 @@ namespace HomeWork1
                             }                            
                         }
                     }                    
+                }
+            }
+
+            public void ItemShowDetail(ControlBank dep)
+            {
+                Console.Clear();
+
+                foreach (Bank bank in dep.Banks)
+                {
+                    Console.WriteLine($"\n{bank.Name}:");
+                    foreach(Client client in bank.Clients)
+                    {
+                        Console.WriteLine($"\n\t{client.firstName} {client.surName}:");
+                        foreach(Account account in client.Accounts)
+                        {
+                            Console.WriteLine($"\n\tсчёт №{account.IDAccount}. Баланс {account.Balance} {account.Valuta}.");
+                        }
+
+                    }
                 }
             }
 
