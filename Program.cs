@@ -12,13 +12,28 @@ namespace HomeWork1
  
     class Program
     {
-        static string delimiter = "--------------------";
-        static int positionContent = 15;
+        static string delimiter = "--------------------";        
+    //    enum VALUTA { RUB, USD, EUR};
 
         // Счёт клиента.
+        [DataContract]
         class Account
         {
+            [DataMember]
+            public int IDAccount { get; set; }
+            [DataMember]
+            public int Balance { get; set; }
+            [DataMember]
+            public string Valuta { get; set; }
+
             public Account() { }
+
+            public Account(int id, int money, string valuta)
+            {
+                IDAccount = id;
+                Balance = Balance + money;
+                Valuta = valuta;
+            }
         }
 
         // Данные клиента.
@@ -29,16 +44,25 @@ namespace HomeWork1
             public string firstName { get; set; }
             [DataMember]
             public string surName { get; set; }
-            //[DataMember]
+            [DataMember]
             public DateTime DateReg { get; set; }
-            //[DataMember]
-            public Account Accouts = new Account();
+            [DataMember]
+            public List<Account> Accounts = new List<Account>();
+
+            public Client() { }
 
             public Client(string fName, string sName)
             {
                 firstName = fName;
                 surName = sName;
-                DateReg = DateTime.Now;
+                DateReg = DateTime.Now;                
+            }
+
+            public void OpenAccount(int id, int money, string valuta)
+            {
+                Account acnt = new Account(id, money, valuta);
+                Accounts.Add(acnt);                
+                Console.WriteLine($"\nБаланс счёта {acnt.Balance} {valuta}.");
             }
                 
 
@@ -64,8 +88,10 @@ namespace HomeWork1
             public string Director { get; set; }
             [DataMember]
             public List<Client> Clients = new List<Client>();
-            //[DataMember]
+            [DataMember]
             public DateTime DateOpen { get; set; }
+
+            public Bank() { }
 
             public Bank(string name, int id, string sity, string director)
             {
@@ -77,14 +103,7 @@ namespace HomeWork1
 
                 Console.WriteLine($"\n{delimiter} {DateOpen.ToLongDateString()} {delimiter}");
                 Console.WriteLine($"\nОткрыто отделение {Name}а №{IDBank} в городе {Sity}.");
-
-                //DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(Bank));
-
-                //using (FileStream fs = new FileStream("BankSystem_Banks.json", FileMode.Append))
-                //{
-                //    jsonFormatter.WriteObject(fs, this);                    
-                //}
-
+                
             }
 
             public void RegClient(string fName, string sName)
@@ -136,21 +155,9 @@ namespace HomeWork1
                 }
 
                 return dep;
-            }
+            }           
 
-            public void SaveBanks() ///--del
-            {
-                DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(Bank));
-
-                using (FileStream fs = new FileStream("BankSystem_Banks.json", FileMode.Append))
-                {
-                    foreach(Bank bank in Banks)
-                    {
-                        jsonFormatter.WriteObject(fs, bank);
-                    }                    
-                }
-            }
-
+            // JSON
             public void SaveControlBank()
             {
                 DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(ControlBank));
@@ -163,13 +170,12 @@ namespace HomeWork1
 
             public void ShowBanks()
             {
-                Console.Clear();
-          //      Console.SetCursorPosition(0, positionContent);
+                Console.Clear();          
                 Console.WriteLine($"\nВ системе управления банками зарегистрированы:");
 
                 foreach (Bank bank in Banks)
                 {                    
-                    Console.WriteLine($"\n{bank.Name}");
+                    Console.WriteLine($"\n{bank.Name}.");
                 }
             }
         }
@@ -180,14 +186,14 @@ namespace HomeWork1
             
             protected bool exit = false;
             bool correctIn = false;
-            int choice = -1;
+            int choice = -1;                        
 
             public Menu(ControlBank dep)
             {                
 
                 while (!exit)
                 {
-                    //         Console.SetCursorPosition(0, 0);                    
+                    
                     Console.WriteLine($"\n{delimiter}{delimiter}");
                     Console.WriteLine("\nДоступные действия:");
                     Console.WriteLine($"\n{delimiter}{delimiter}");
@@ -195,6 +201,8 @@ namespace HomeWork1
                     Console.WriteLine("\n2 - Открыть новое отделение банка.");
                     Console.WriteLine("\n3 - Зарегистрировать клиента.");
                     Console.WriteLine("\n4 - Показать клиентов банка.");
+                    Console.WriteLine("\n5 - Открыть счёт.");
+                    Console.WriteLine("\n6 - Показать счета клиента.");                    
                     Console.WriteLine("\n0 - Выход.");
                     Console.WriteLine($"\n{delimiter}{delimiter}\n");
 
@@ -204,7 +212,7 @@ namespace HomeWork1
                         {
                             choice = Int32.Parse(Console.ReadLine());
 
-                            if ((choice < 0) || (choice > 4))
+                            if ((choice < 0) || (choice > 6))
                             {
                                 correctIn = false;
                                 Console.WriteLine("\nНеверное значение. Повторите ввод:\n");
@@ -219,98 +227,195 @@ namespace HomeWork1
                                                
                     }
 
-                    correctIn = false;                                        
+                    correctIn = false;
+                    
+                    switch (choice )
+                    {                        
 
-                    switch(choice )
-                    {
                         case 1:
-
-                            dep.ShowBanks();
-
+                     
+                            dep.ShowBanks();                            
                             break;
 
                         case 2:
-                            Console.WriteLine("\nВведите название банка:\n");
-                            string name = Console.ReadLine();
-                            bool ok = false;
-                            int id = 0;
 
-                            while (!ok)
-                            {
-                                Console.WriteLine("\nВведите номер отделения:\n");
-                                try
-                                {
-                                    id = Int32.Parse(Console.ReadLine());
-                                    ok = true;
-                                }
-                                catch
-                                {
-                                    Console.WriteLine("\nНомер банка - числовое значение. Повторите ввод:\n");
-                                    ok = false;
-                                }
-                            }                                                        
-
-                            Console.WriteLine("\nВведите название города:\n");
-                            string sity = Console.ReadLine();
-
-                            Console.WriteLine("\nВведите фамилию управляющего:\n");
-                            string director = Console.ReadLine();
-
-                            dep.RegBank(name, id, sity, director);
+                            ItemOpenBank(dep);
                             break;
 
                         case 3:
 
-                            string fName = "";
-                            string sName = "";
-                            string bName = "";
-
-                            Console.WriteLine("\nВведите название банка:\n");
-                            bName = Console.ReadLine();
-
-                            Console.WriteLine("\nВведите имя клиента:\n");
-                            fName = Console.ReadLine();
-
-                            Console.WriteLine("\nВведите фамилию клиента:\n");
-                            sName = Console.ReadLine();
-
-                            Client client = new Client(fName, sName);
-
-                            foreach(Bank bank in dep.Banks)
-                            {
-                                if (bank.Name == bName)
-                                {
-                                    bank.Clients.Add(client);
-                                }
-                            }
-
+                            ItemRegClient(dep);
                             break;
 
                         case 4:
 
-                            string bbName = "";
-                            Console.WriteLine("\nВведите название банка:\n");
-                            bbName = Console.ReadLine();
+                            ItemShowClients(dep);
+                            break;
 
-                            foreach (Bank bank in dep.Banks)
-                            {
-                                if (bank.Name == bbName)
-                                {
-                                    bank.ShowClients();
-                                }
-                            }
+                        case 5:
 
+                            ItemOpenAccount(dep);
+                            break;
+
+                        case 6:
+
+                            ItemShowAccount(dep);
                             break;
 
                         case 0:
 
                             dep.SaveControlBank();
                             exit = true;
-
                             break;
                     }
                 }
             }
+
+            // Пункт меню - Открытие нового отделения банка.
+            public void ItemOpenBank(ControlBank dep)
+            {
+
+                int idBank = 0;
+                bool ok = false;
+
+                Console.WriteLine("\nВведите название банка:\n");
+                string bankName = Console.ReadLine();                
+
+                while (!ok)
+                {
+                    Console.WriteLine("\nВведите номер отделения:\n");
+                    try
+                    {
+                        idBank = Int32.Parse(Console.ReadLine());
+                        ok = true;
+                    }
+                    catch
+                    {
+                        Console.WriteLine("\nНомер банка - числовое значение. Повторите ввод:\n");
+                        ok = false;
+                    }
+                }
+
+                Console.WriteLine("\nВведите название города:\n");
+                string sity = Console.ReadLine();
+
+                Console.WriteLine("\nВведите фамилию управляющего:\n");
+                string director = Console.ReadLine();
+                Console.Clear();
+
+                dep.RegBank(bankName, idBank, sity, director);
+            }
+            
+            // Пункт меню - Регистрация клиента.
+            public void ItemRegClient(ControlBank dep)
+            {
+                Console.WriteLine("\nВведите название банка:\n");
+                string bankName = Console.ReadLine();
+
+                Console.WriteLine("\nВведите имя клиента:\n");
+                string firstName = Console.ReadLine();
+
+                Console.WriteLine("\nВведите фамилию клиента:\n");
+                string surName = Console.ReadLine();
+                Console.Clear();
+
+                Client client = new Client(firstName, surName);
+
+                foreach (Bank bank in dep.Banks)
+                {
+                    if (bank.Name == bankName)
+                    {
+                        bank.Clients.Add(client);
+                        Console.WriteLine($"\n{firstName} {surName} зарегистрирован в {bankName}е.");
+                    }
+                }
+            }
+            
+            
+            // Пункт меню - Показать клиентов.
+            public void ItemShowClients(ControlBank dep)
+            {
+                Console.WriteLine("\nВведите название банка:\n");
+                string bankName = Console.ReadLine();
+                Console.Clear();
+
+                foreach (Bank bank in dep.Banks)
+                {
+                    if (bank.Name == bankName)
+                    {
+                        bank.ShowClients();
+                    }
+                }
+            }
+
+            // Пункт меню - Открыть счёт.
+            public void ItemOpenAccount(ControlBank dep)
+            {
+
+                Console.WriteLine("\nВведите название банка:\n");
+                string bankName = Console.ReadLine();
+
+                Console.WriteLine("\nВведите имя клиента:\n");
+                string firstName = Console.ReadLine();
+
+                Console.WriteLine("\nВведите фамилию клиента:\n");
+                string surName = Console.ReadLine();
+
+                Console.WriteLine("\nВведите номер счёта:\n");
+                int idAccount = Int32.Parse(Console.ReadLine());
+
+                Console.WriteLine("\nВведите сумму:\n");
+                int money = Int32.Parse(Console.ReadLine());
+
+                Console.WriteLine("\nВведите валюту счёта:\n");
+                string valuta = Console.ReadLine();
+                Console.Clear();
+
+                foreach (Bank bank in dep.Banks)
+                {
+                    if (bank.Name == bankName)
+                    {
+                        foreach (Client client in bank.Clients)
+                        {
+                            if ((client.firstName == firstName) && (client.surName == surName))
+                            {
+                                client.OpenAccount(idAccount, money, valuta);
+                                Console.WriteLine($"\n{firstName} {surName} открыл счёт №{idAccount} в {bankName}е.");
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            // Пункт меню - Показать счета клиента.
+            public void ItemShowAccount(ControlBank dep)
+            {
+                
+                Console.WriteLine("\nВведите имя клиента:\n");
+                string firstName = Console.ReadLine();
+
+                Console.WriteLine("\nВведите фамилию клиента:\n");
+                string surName = Console.ReadLine();
+                Console.Clear();
+                
+                foreach (Bank bank in dep.Banks)
+                {                    
+                    foreach (Client client in bank.Clients)
+                    {
+                        if ((client.firstName == firstName) && (client.surName == surName))
+                        {
+                            Console.WriteLine($"\n{client.firstName} {client.surName} владеет счетами в {bank.Name}е:");
+                            foreach (Account account in client.Accounts)
+                            {
+                                Console.WriteLine($"\nСчёт №{account.IDAccount}. Баланс {account.Balance} {account.Valuta}.");
+                            }                            
+                        }
+                    }                    
+                }
+            }
+
+
         }
 
 
