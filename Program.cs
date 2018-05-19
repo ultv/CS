@@ -54,7 +54,7 @@ namespace HomeWork1
             public Client(string fName, string sName)
             {
                 firstName = fName;
-                surName = sName;
+                surName = sName;                
                 DateReg = DateTime.Now;                
             }
 
@@ -69,10 +69,30 @@ namespace HomeWork1
         }
 
         // Операция со счетами.
+        [DataContract]
         class Transaction
         {
+            [DataMember]
+            public DateTime DateTransaction;
+            [DataMember]
+            public int FromAccount { get; set; }
+            [DataMember]
+            public int ToAccount { get; set; }
+            [DataMember]
+            public int Money { get; set; }
+            [DataMember]
+            public string Valuta { get; set; }            
 
-        }
+            public Transaction(int from, int to, int money, string valuta)
+            {
+                DateTransaction = DateTime.Now;
+                FromAccount = from;
+                ToAccount = to;
+                Money = money;
+                Valuta = valuta;
+            }
+            
+        }        
 
         // Данные банка.
         [DataContract]
@@ -88,6 +108,8 @@ namespace HomeWork1
             public string Director { get; set; }
             [DataMember]
             public List<Client> Clients = new List<Client>();
+            [DataMember]
+            public List<Transaction> LogTrans = new List<Transaction>();
             [DataMember]
             public DateTime DateOpen { get; set; }
 
@@ -144,14 +166,22 @@ namespace HomeWork1
                 Console.WriteLine($"\n{bank.Name} зарегистрирован в системе управлениеями банками.");
             }
 
+            // JSON
             public ControlBank LoadControlBank()
             {
                 DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(ControlBank));
                 ControlBank dep = new ControlBank();
 
-                using (FileStream fs = new FileStream("BankSystem_ControlBank.json", FileMode.Open))
+                using (FileStream fs = new FileStream("BankSystem.json", FileMode.Open))
                 {
-                    dep = (ControlBank)jsonFormatter.ReadObject(fs);                    
+                    try
+                    {
+                        dep = (ControlBank)jsonFormatter.ReadObject(fs);
+                    }
+                    catch
+                    {
+
+                    }                    
                 }
 
                 return dep;
@@ -162,7 +192,7 @@ namespace HomeWork1
             {
                 DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(ControlBank));
 
-                using (FileStream fs = new FileStream("BankSystem_ControlBank.json", FileMode.OpenOrCreate))
+                using (FileStream fs = new FileStream("BankSystem.json", FileMode.OpenOrCreate))
                 {                    
                     jsonFormatter.WriteObject(fs, this);                    
                 }
@@ -205,6 +235,7 @@ namespace HomeWork1
                     Console.WriteLine("\n6 - Показать счета клиента.");
                     Console.WriteLine("\n7 - Показать подробную инормацию.");
                     Console.WriteLine("\n8 - Перевод средств.");
+                    Console.WriteLine("\n9 - История транзакций.");
                     Console.WriteLine("\n0 - Выход.");
                     Console.WriteLine($"\n{delimiter}{delimiter}\n");
 
@@ -214,7 +245,7 @@ namespace HomeWork1
                         {
                             choice = Int32.Parse(Console.ReadLine());
 
-                            if ((choice < 0) || (choice > 8))
+                            if ((choice < 0) || (choice > 9))
                             {
                                 correctIn = false;
                                 Console.WriteLine("\nНеверное значение. Повторите ввод:\n");
@@ -270,8 +301,13 @@ namespace HomeWork1
                             break;
 
                         case 8:
-
+                            
                             ItemTransfer(dep);
+                            break;
+
+                        case 9:
+
+                            ItemShowLogTrans(dep);
                             break;
 
                         case 0:
@@ -458,6 +494,8 @@ namespace HomeWork1
                 string valuta = Console.ReadLine();
                 Console.Clear();
 
+                Transaction trans = new Transaction(from, to, money, valuta);
+
                 foreach (Bank bank in dep.Banks)
                 {
                     foreach(Client client in bank.Clients)
@@ -468,13 +506,35 @@ namespace HomeWork1
                             {
                                 account.Balance = account.Balance - money;
                                 Console.WriteLine($"\nСо счёта №{from} переведено {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
+                                bank.LogTrans.Add(trans);
                             }
                             if (account.IDAccount == to)
                             {
                                 account.Balance = account.Balance + money;
                                 Console.WriteLine($"\nНа счёт №{to} поступило {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
+                                if(from != to)
+                                {
+                                    bank.LogTrans.Add(trans);
+                                }
+                                
                             }
                         }
+                    }
+                }
+            }
+
+            public void ItemShowLogTrans(ControlBank dep)
+            {
+                Console.Clear();
+
+                foreach (Bank bank in dep.Banks)
+                {
+                    Console.WriteLine($"\n{bank.Name}:");
+
+                    foreach(Transaction trans in bank.LogTrans)
+                    {
+                        Console.WriteLine($"\n{trans.DateTransaction.ToLongDateString()} {trans.DateTransaction.ToShortTimeString()}" +
+                            $" со счёта №{trans.FromAccount} на счёт №{trans.ToAccount} переведено {trans.Money} {trans.Valuta}.");
                     }
                 }
             }
@@ -494,7 +554,6 @@ namespace HomeWork1
             departament = departament.LoadControlBank();            
 
             Menu menu = new Menu(departament); 
-
 
         }
     }
