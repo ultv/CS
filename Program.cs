@@ -18,12 +18,29 @@ namespace HomeWork1
         // Счёт клиента.
         class Account
         {
-
+            public Account() { }
         }
 
         // Данные клиента.
+        [DataContract]
         class Client
         {
+            [DataMember]
+            public string firstName { get; set; }
+            [DataMember]
+            public string surName { get; set; }
+            //[DataMember]
+            public DateTime DateReg { get; set; }
+            //[DataMember]
+            public Account Accouts = new Account();
+
+            public Client(string fName, string sName)
+            {
+                firstName = fName;
+                surName = sName;
+                DateReg = DateTime.Now;
+            }
+                
 
         }
 
@@ -47,8 +64,8 @@ namespace HomeWork1
             public string Director { get; set; }
             [DataMember]
             public List<Client> Clients = new List<Client>();
-            [DataMember]
-            public DateTime DataOpen { get; set; }
+            //[DataMember]
+            public DateTime DateOpen { get; set; }
 
             public Bank(string name, int id, string sity, string director)
             {
@@ -56,9 +73,9 @@ namespace HomeWork1
                 IDBank = id;
                 Sity = sity;
                 Director = director;
-                DataOpen = DateTime.Now;                
+                DateOpen = DateTime.Now;                
 
-                Console.WriteLine($"\n{delimiter} {DataOpen.ToLongDateString()} {delimiter}");
+                Console.WriteLine($"\n{delimiter} {DateOpen.ToLongDateString()} {delimiter}");
                 Console.WriteLine($"\nОткрыто отделение {Name}а №{IDBank} в городе {Sity}.");
 
                 //DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(Bank));
@@ -68,6 +85,22 @@ namespace HomeWork1
                 //    jsonFormatter.WriteObject(fs, this);                    
                 //}
 
+            }
+
+            public void RegClient(string fName, string sName)
+            {
+                Client client = new Client(fName, sName);
+                Clients.Add(client);
+            }
+
+            public void ShowClients()
+            {
+                Console.WriteLine($"\nКлиенты {Name}а:");
+
+                foreach (Client client in Clients)
+                {
+                    Console.WriteLine($"\n{client.firstName} {client.surName}.");
+                }
             }
         }
 
@@ -80,7 +113,7 @@ namespace HomeWork1
 
             public ControlBank()
             {
-                //Console.WriteLine("\nСоздана система управления банками.");
+                //Console.WriteLine("\nСоздана система управления банками.");                
             }
 
             // Регистрирует новый банк.
@@ -88,17 +121,16 @@ namespace HomeWork1
             {
                 Bank bank = new Bank(name, id, sity, director);
                 Banks.Add(bank);
-                Console.WriteLine($"\n{delimiter} {bank.DataOpen.ToLongDateString()} {delimiter}");
+                Console.WriteLine($"\n{delimiter} {bank.DateOpen.ToLongDateString()} {delimiter}");
                 Console.WriteLine($"\n{bank.Name} зарегистрирован в системе управлениеями банками.");
             }
 
             public ControlBank LoadControlBank()
             {
                 DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(ControlBank));
-
                 ControlBank dep = new ControlBank();
 
-                using (FileStream fs = new FileStream("BankSystem_Banks.json", FileMode.Open))
+                using (FileStream fs = new FileStream("BankSystem_ControlBank.json", FileMode.Open))
                 {
                     dep = (ControlBank)jsonFormatter.ReadObject(fs);                    
                 }
@@ -123,7 +155,7 @@ namespace HomeWork1
             {
                 DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(ControlBank));
 
-                using (FileStream fs = new FileStream("BankSystem_Banks.json", FileMode.Append))
+                using (FileStream fs = new FileStream("BankSystem_ControlBank.json", FileMode.OpenOrCreate))
                 {                    
                     jsonFormatter.WriteObject(fs, this);                    
                 }
@@ -132,7 +164,7 @@ namespace HomeWork1
             public void ShowBanks()
             {
                 Console.Clear();
-                Console.SetCursorPosition(0, positionContent);
+          //      Console.SetCursorPosition(0, positionContent);
                 Console.WriteLine($"\nВ системе управления банками зарегистрированы:");
 
                 foreach (Bank bank in Banks)
@@ -154,14 +186,17 @@ namespace HomeWork1
             {                
 
                 while (!exit)
-                {                    
-                    Console.SetCursorPosition(0, 0);                    
+                {
+                    //         Console.SetCursorPosition(0, 0);                    
+                    Console.WriteLine($"\n{delimiter}{delimiter}");
                     Console.WriteLine("\nДоступные действия:");
+                    Console.WriteLine($"\n{delimiter}{delimiter}");
                     Console.WriteLine("\n1 - Показать банки.");
                     Console.WriteLine("\n2 - Открыть новое отделение банка.");
                     Console.WriteLine("\n3 - Зарегистрировать клиента.");
+                    Console.WriteLine("\n4 - Показать клиентов банка.");
                     Console.WriteLine("\n0 - Выход.");
-                    Console.WriteLine($"\n{delimiter}\n");
+                    Console.WriteLine($"\n{delimiter}{delimiter}\n");
 
                     while (!correctIn)
                     {
@@ -169,7 +204,7 @@ namespace HomeWork1
                         {
                             choice = Int32.Parse(Console.ReadLine());
 
-                            if ((choice < 0) || (choice > 3))
+                            if ((choice < 0) || (choice > 4))
                             {
                                 correctIn = false;
                                 Console.WriteLine("\nНеверное значение. Повторите ввод:\n");
@@ -195,16 +230,30 @@ namespace HomeWork1
                             break;
 
                         case 2:
-                            Console.WriteLine("\nВведите название банка:");
+                            Console.WriteLine("\nВведите название банка:\n");
                             string name = Console.ReadLine();
+                            bool ok = false;
+                            int id = 0;
 
-                            Console.WriteLine("\nВведите номер отделения:");
-                            int id = Int32.Parse(Console.ReadLine());
+                            while (!ok)
+                            {
+                                Console.WriteLine("\nВведите номер отделения:\n");
+                                try
+                                {
+                                    id = Int32.Parse(Console.ReadLine());
+                                    ok = true;
+                                }
+                                catch
+                                {
+                                    Console.WriteLine("\nНомер банка - числовое значение. Повторите ввод:\n");
+                                    ok = false;
+                                }
+                            }                                                        
 
-                            Console.WriteLine("\nВведите название города:");
+                            Console.WriteLine("\nВведите название города:\n");
                             string sity = Console.ReadLine();
 
-                            Console.WriteLine("\nВведите фамилию управляющего:");
+                            Console.WriteLine("\nВведите фамилию управляющего:\n");
                             string director = Console.ReadLine();
 
                             dep.RegBank(name, id, sity, director);
@@ -212,11 +261,50 @@ namespace HomeWork1
 
                         case 3:
 
+                            string fName = "";
+                            string sName = "";
+                            string bName = "";
+
+                            Console.WriteLine("\nВведите название банка:\n");
+                            bName = Console.ReadLine();
+
+                            Console.WriteLine("\nВведите имя клиента:\n");
+                            fName = Console.ReadLine();
+
+                            Console.WriteLine("\nВведите фамилию клиента:\n");
+                            sName = Console.ReadLine();
+
+                            Client client = new Client(fName, sName);
+
+                            foreach(Bank bank in dep.Banks)
+                            {
+                                if (bank.Name == bName)
+                                {
+                                    bank.Clients.Add(client);
+                                }
+                            }
+
+                            break;
+
+                        case 4:
+
+                            string bbName = "";
+                            Console.WriteLine("\nВведите название банка:\n");
+                            bbName = Console.ReadLine();
+
+                            foreach (Bank bank in dep.Banks)
+                            {
+                                if (bank.Name == bbName)
+                                {
+                                    bank.ShowClients();
+                                }
+                            }
+
                             break;
 
                         case 0:
 
-                            //dep.SaveControlBank();
+                            dep.SaveControlBank();
                             exit = true;
 
                             break;
@@ -235,11 +323,6 @@ namespace HomeWork1
             ControlBank departament = new ControlBank();
             departament = departament.LoadControlBank();
             
-            //departament.RegBank("Сбербанк", 7301, "Ульяновск", "Иванов");
-
-            //departament.RegBank("Альфа-банк", 7302, "Ульяновск", "Петров");
-
-            //departament.RegBank("ВТБ", 7303, "Ульяновск", "Сидоров");
 
             //Console.ReadKey();
             //Console.Clear();
