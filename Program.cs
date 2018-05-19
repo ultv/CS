@@ -61,33 +61,72 @@ namespace HomeWork1
                 Console.WriteLine($"\n{delimiter} {DataOpen.ToLongDateString()} {delimiter}");
                 Console.WriteLine($"\nОткрыто отделение {Name}а №{IDBank} в городе {Sity}.");
 
-                DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(Bank));
+                //DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(Bank));
 
-                using (FileStream fs = new FileStream("Banks.json", FileMode.Append))
-                {
-                    jsonFormatter.WriteObject(fs, this);                    
-                }
+                //using (FileStream fs = new FileStream("BankSystem_Banks.json", FileMode.Append))
+                //{
+                //    jsonFormatter.WriteObject(fs, this);                    
+                //}
 
             }
         }
 
         // Данные о всех банках.
+        [DataContract]
         class ControlBank
         {
+            [DataMember]
             public List<Bank> Banks = new List<Bank>();
 
             public ControlBank()
             {
-
-                Console.WriteLine("\nСоздана система управления банками.");
+                //Console.WriteLine("\nСоздана система управления банками.");
             }
 
             // Регистрирует новый банк.
-            public void RegBank(Bank bank)
+            public void RegBank(string name, int id, string sity, string director)
             {
+                Bank bank = new Bank(name, id, sity, director);
                 Banks.Add(bank);
                 Console.WriteLine($"\n{delimiter} {bank.DataOpen.ToLongDateString()} {delimiter}");
                 Console.WriteLine($"\n{bank.Name} зарегистрирован в системе управлениеями банками.");
+            }
+
+            public ControlBank LoadControlBank()
+            {
+                DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(ControlBank));
+
+                ControlBank dep = new ControlBank();
+
+                using (FileStream fs = new FileStream("BankSystem_Banks.json", FileMode.Open))
+                {
+                    dep = (ControlBank)jsonFormatter.ReadObject(fs);                    
+                }
+
+                return dep;
+            }
+
+            public void SaveBanks() ///--del
+            {
+                DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(Bank));
+
+                using (FileStream fs = new FileStream("BankSystem_Banks.json", FileMode.Append))
+                {
+                    foreach(Bank bank in Banks)
+                    {
+                        jsonFormatter.WriteObject(fs, bank);
+                    }                    
+                }
+            }
+
+            public void SaveControlBank()
+            {
+                DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(ControlBank));
+
+                using (FileStream fs = new FileStream("BankSystem_Banks.json", FileMode.Append))
+                {                    
+                    jsonFormatter.WriteObject(fs, this);                    
+                }
             }
 
             public void ShowBanks()
@@ -119,7 +158,7 @@ namespace HomeWork1
                     Console.SetCursorPosition(0, 0);                    
                     Console.WriteLine("\nДоступные действия:");
                     Console.WriteLine("\n1 - Показать банки.");
-                    Console.WriteLine("\n2 - Показать клиентов.");
+                    Console.WriteLine("\n2 - Открыть новое отделение банка.");
                     Console.WriteLine("\n3 - Зарегистрировать клиента.");
                     Console.WriteLine("\n0 - Выход.");
                     Console.WriteLine($"\n{delimiter}\n");
@@ -150,16 +189,36 @@ namespace HomeWork1
                     switch(choice )
                     {
                         case 1:
+
                             dep.ShowBanks();
-                            break;
-                        case 2:
 
                             break;
+
+                        case 2:
+                            Console.WriteLine("\nВведите название банка:");
+                            string name = Console.ReadLine();
+
+                            Console.WriteLine("\nВведите номер отделения:");
+                            int id = Int32.Parse(Console.ReadLine());
+
+                            Console.WriteLine("\nВведите название города:");
+                            string sity = Console.ReadLine();
+
+                            Console.WriteLine("\nВведите фамилию управляющего:");
+                            string director = Console.ReadLine();
+
+                            dep.RegBank(name, id, sity, director);
+                            break;
+
                         case 3:
 
                             break;
+
                         case 0:
+
+                            //dep.SaveControlBank();
                             exit = true;
+
                             break;
                     }
                 }
@@ -174,18 +233,16 @@ namespace HomeWork1
             Console.WindowHeight = 50;
 
             ControlBank departament = new ControlBank();
+            departament = departament.LoadControlBank();
+            
+            //departament.RegBank("Сбербанк", 7301, "Ульяновск", "Иванов");
 
-            Bank sber = new Bank("Сбербанк", 7301, "Ульяновск", "Иванов");
-            departament.RegBank(sber);
+            //departament.RegBank("Альфа-банк", 7302, "Ульяновск", "Петров");
 
-            Bank alfa = new Bank("Альфа-банк", 7302, "Ульяновск", "Петров");
-            departament.RegBank(alfa);
+            //departament.RegBank("ВТБ", 7303, "Ульяновск", "Сидоров");
 
-            Bank vtb = new Bank("ВТБ", 7303, "Ульяновск", "Сидоров");
-            departament.RegBank(vtb);
-
-            Console.ReadKey();
-            Console.Clear();
+            //Console.ReadKey();
+            //Console.Clear();
 
             Menu menu = new Menu(departament); 
 
