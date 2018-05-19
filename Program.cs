@@ -204,6 +204,7 @@ namespace HomeWork1
                     Console.WriteLine("\n5 - Открыть счёт.");
                     Console.WriteLine("\n6 - Показать счета клиента.");
                     Console.WriteLine("\n7 - Показать подробную инормацию.");
+                    Console.WriteLine("\n8 - Перевод средств.");
                     Console.WriteLine("\n0 - Выход.");
                     Console.WriteLine($"\n{delimiter}{delimiter}\n");
 
@@ -213,7 +214,7 @@ namespace HomeWork1
                         {
                             choice = Int32.Parse(Console.ReadLine());
 
-                            if ((choice < 0) || (choice > 7))
+                            if ((choice < 0) || (choice > 8))
                             {
                                 correctIn = false;
                                 Console.WriteLine("\nНеверное значение. Повторите ввод:\n");
@@ -266,6 +267,11 @@ namespace HomeWork1
                         case 7:
 
                             ItemShowDetail(dep);
+                            break;
+
+                        case 8:
+
+                            ItemTransfer(dep);
                             break;
 
                         case 0:
@@ -440,6 +446,39 @@ namespace HomeWork1
                 }
             }
 
+            public void ItemTransfer(ControlBank dep)
+            {
+                Console.WriteLine("\nНомер счёта с которого осуществляется перевод:\n");
+                int from = Int32.Parse(Console.ReadLine());
+                Console.WriteLine("\nНомер счёта на который осуществляется перевод:\n");
+                int to = Int32.Parse(Console.ReadLine());
+                Console.WriteLine("\nСумма перевода:\n");
+                int money = Int32.Parse(Console.ReadLine());
+                Console.WriteLine("\nВалюта:\n");
+                string valuta = Console.ReadLine();
+                Console.Clear();
+
+                foreach (Bank bank in dep.Banks)
+                {
+                    foreach(Client client in bank.Clients)
+                    {
+                        foreach(Account account in client.Accounts)
+                        {
+                            if(account.IDAccount == from)
+                            {
+                                account.Balance = account.Balance - money;
+                                Console.WriteLine($"\nСо счёта №{from} переведено {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
+                            }
+                            if (account.IDAccount == to)
+                            {
+                                account.Balance = account.Balance + money;
+                                Console.WriteLine($"\nНа счёт №{to} поступило {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
+                            }
+                        }
+                    }
+                }
+            }
+
 
         }
 
@@ -451,11 +490,8 @@ namespace HomeWork1
             Console.WindowHeight = 50;
 
             ControlBank departament = new ControlBank();
-            departament = departament.LoadControlBank();
-            
 
-            //Console.ReadKey();
-            //Console.Clear();
+            departament = departament.LoadControlBank();            
 
             Menu menu = new Menu(departament); 
 
