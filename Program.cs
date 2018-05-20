@@ -457,16 +457,28 @@ namespace HomeWork1
                 string surName = Console.ReadLine();
                 Console.Clear();
 
-                Client client = new Client(firstName, surName);
-
-                foreach (Bank bank in dep.Banks)
+                // Запрещаем регистрацию клиентов с одинаковыми данными
+                // Отменим после внедрения номера паспорта или договора.
+                if(!isClientExistFromBank(dep, firstName, surName, bankName))
                 {
-                    if (bank.Name == bankName)
+                    Client client = new Client(firstName, surName);
+
+                    foreach (Bank bank in dep.Banks)
                     {
-                        bank.Clients.Add(client);
-                        Console.WriteLine($"\n{firstName} {surName} зарегистрирован в {bankName}е.");
+                        if (bank.Name == bankName)
+                        {
+                            bank.Clients.Add(client);
+                            Console.WriteLine($"\n{firstName} {surName} зарегистрирован в {bankName}е.");
+                        }
                     }
                 }
+                else
+                {
+                    Console.Clear();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"\nКлиент {firstName} {surName} уже зарегистрирован в {bankName}.");
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                }                
             }
             
             
@@ -474,9 +486,12 @@ namespace HomeWork1
             public void ItemShowClients(ControlBank dep)
             {
                 Console.WriteLine($"\n{delimiter}{delimiter}");
-                Console.WriteLine("\nВведите название банка для просмотра его клиентов: (0 - вернуться в меню)\n");
-                string bankName = Console.ReadLine();
-                if(bankName != "0")
+                Console.WriteLine("\nПосмотреть клиентов банка (0 - вернуться в меню)\n");                
+
+                string bankName = CheckExistBank(dep);
+
+
+                if (bankName != "0")
                 {
                     Console.Clear();
 
@@ -502,66 +517,77 @@ namespace HomeWork1
 
                 Console.WriteLine("\nВведите фамилию клиента:\n");
                 string surName = Console.ReadLine();
-                
-                // Проверяем номер счёта на уникальность и корректность.
-                int idAccount = 0;
-                bool isCorrect = false;
-                while (!isCorrect)
+
+                // Проверяем только по выбранному банку.
+                if (isClientExistFromBank(dep, firstName, surName, bankName))
                 {
-                    Console.WriteLine("\nВведите номер счёта:\n");
-                    try
+                    // Проверяем номер счёта на уникальность и корректность.
+                    int idAccount = 0;
+                    bool isCorrect = false;
+                    while (!isCorrect)
                     {
-                        idAccount = Int32.Parse(Console.ReadLine());
-
-                        if(idAccount <= 0)
+                        Console.WriteLine("\nВведите номер счёта:\n");
+                        try
                         {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine($"\nНомер счёта должен иметь положительное значение.");
-                            Console.ForegroundColor = ConsoleColor.Gray;
-                        }                    
-                        else if (!IsExistAccount(dep, idAccount))
-                        {
-                            isCorrect = true;
-                        }                            
-                        else
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine($"\nСчёт №{idAccount} уже существует.");
-                            Console.ForegroundColor = ConsoleColor.Gray;
-                        }                            
-                    }
-                    catch
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("\nНомер счёта должен содержать числовое значение:");
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                    }                    
-                }
+                            idAccount = Int32.Parse(Console.ReadLine());
 
-                int money = CheckMoney();
-
-                Console.WriteLine("\nВведите валюту счёта (RUB, USD, EUR):\n");
-                string valuta = Console.ReadLine();
-                Console.Clear();
-
-                foreach (Bank bank in dep.Banks)
-                {
-                    if (bank.Name == bankName)
-                    {
-                        foreach (Client client in bank.Clients)
-                        {
-                            if ((client.firstName == firstName) && (client.surName == surName))
+                            if (idAccount <= 0)
                             {
-                                client.OpenAccount(idAccount, money, valuta);
-                                Console.WriteLine($"\n{firstName} {surName} открыл счёт №{idAccount} в {bankName}е.");
-                                Transaction deposit = new Transaction(0, idAccount, money, valuta);
-                                deposit.Name = "Открытие";
-                                bank.LogTrans.Add(deposit);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine($"\nНомер счёта должен иметь положительное значение.");
+                                Console.ForegroundColor = ConsoleColor.Gray;
                             }
+                            else if (!IsExistAccount(dep, idAccount))
+                            {
+                                isCorrect = true;
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine($"\nСчёт №{idAccount} уже существует.");
+                                Console.ForegroundColor = ConsoleColor.Gray;
+                            }
+                        }
+                        catch
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("\nНомер счёта должен содержать числовое значение:");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                        }
+                    }
 
+                    int money = CheckMoney();
+
+                    Console.WriteLine("\nВведите валюту счёта (RUB, USD, EUR):\n");
+                    string valuta = Console.ReadLine();
+                    Console.Clear();
+
+                    foreach (Bank bank in dep.Banks)
+                    {
+                        if (bank.Name == bankName)
+                        {
+                            foreach (Client client in bank.Clients)
+                            {
+                                if ((client.firstName == firstName) && (client.surName == surName))
+                                {
+                                    client.OpenAccount(idAccount, money, valuta);
+                                    Console.WriteLine($"\n{firstName} {surName} открыл счёт №{idAccount} в {bankName}е.");
+                                    Transaction deposit = new Transaction(0, idAccount, money, valuta);
+                                    deposit.Name = "Открытие";
+                                    bank.LogTrans.Add(deposit);
+
+                                }
+                            }
                         }
                     }
                 }
+                else
+                {
+                    Console.Clear();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"\nКлиент {firstName} {surName} - в {bankName} не зарегистрирован.");
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                }                                
             }
 
             // Пункт меню - Показать счета клиента.
@@ -574,6 +600,9 @@ namespace HomeWork1
                 string surName = Console.ReadLine();
                 Console.Clear();
                 
+                // Проверяем по всем банкам.
+                bool isClientExist = false;
+
                 foreach (Bank bank in dep.Banks)
                 {                    
                     foreach (Client client in bank.Clients)
@@ -584,9 +613,19 @@ namespace HomeWork1
                             foreach (Account account in client.Accounts)
                             {
                                 Console.WriteLine($"\n\tСчёт №{account.IDAccount}. Баланс {account.Balance} {account.Valuta}.");
-                            }                            
+                            }
+
+                            isClientExist = true;
                         }
-                    }                    
+                        
+                    }
+                }
+
+                if(!isClientExist)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"\nКлиент {firstName} {surName} - не зарегистрирован.");
+                    Console.ForegroundColor = ConsoleColor.Gray;
                 }
             }
 
@@ -868,6 +907,26 @@ namespace HomeWork1
                 }                
 
                 return bankName;
+            }
+
+            // Возвращает истину если клиент зарегистрирован в указанном банке. 
+            public bool isClientExistFromBank(ControlBank dep, string firstName, string surName, string bankName)
+            {
+                foreach(Bank bank in dep.Banks)
+                {
+                    if(bank.Name == bankName)
+                    {
+                        foreach (Client client in bank.Clients)
+                        {
+                            if ((client.firstName == firstName) && (client.surName == surName))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }                                
+                
+                return false;
             }
 
         }
