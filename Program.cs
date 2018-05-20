@@ -13,9 +13,7 @@ namespace HomeWork1
     class Program
     {
         static string delimiter = "--------------------";
-        static string PATH = Directory.GetCurrentDirectory() + "\\JSON\\";
-
-    //    enum VALUTA { RUB, USD, EUR};
+        static string PATH = Directory.GetCurrentDirectory() + "\\JSON\\";        
 
         // Счёт клиента.
         [DataContract]
@@ -318,53 +316,43 @@ namespace HomeWork1
                     switch (choice )
                     {                        
 
-                        case 1:
-                     
+                        case 1:                     
                             ItemShowBanksClients(dep);                            
                             break;
 
                         case 2:
-
                             ItemShowAccount(dep);
                             break;
 
                         case 3:
-
                             ItemShowDetail(dep);
                             break;
 
                         case 4:
-
                             ItemShowLogTrans(dep);
                             break;
 
                         case 5:
-
                             ItemOpenBank(dep);
                             break;
 
                         case 6:
-
                             ItemRegClient(dep);
                             break;
 
                         case 7:
-
                             ItemOpenAccount(dep);
                             break;
 
                         case 8:
-
                             ItemDeposit(dep);
                             break;
 
                         case 9:
-
                             ItemTransfer(dep);
                             break;
 
                         case 0:
-
                             dep.SaveControlBank();
                             exit = true;
                             break;
@@ -558,9 +546,7 @@ namespace HomeWork1
 
                     int money = CheckMoney();
 
-                    Console.WriteLine("\nВведите валюту счёта (RUB, USD, EUR):\n");
-                    string valuta = Console.ReadLine();
-                    Console.Clear();
+                    string valuta = CheckValuta();
 
                     foreach (Bank bank in dep.Banks)
                     {
@@ -650,15 +636,13 @@ namespace HomeWork1
             }
 
             // Пункт - меню осуществить перевод
-            public void ItemTransfer(ControlBank dep)
+            public void _ItemTransfer(ControlBank dep)
             {
                 int from = CheckExistAccount(dep, "\nНомер счёта с которого осуществляется перевод:\n");
                 int to = CheckExistAccount(dep, "\nНомер счёта на который осуществляется перевод:\n");
                 int money = CheckMoney();
 
-                Console.WriteLine("\nВалюта (RUB, USD, EUR):\n");
-                string valuta = Console.ReadLine();
-                Console.Clear();
+                string valuta = CheckValuta();
 
                 Transaction transFrom = new Transaction(from, to, money, valuta);
                 Transaction transTo = new Transaction(from, to, money, valuta);
@@ -705,6 +689,52 @@ namespace HomeWork1
                 }
             }
 
+
+
+
+
+            // Пункт - меню осуществить перевод
+            public void ItemTransfer(ControlBank dep)
+            {
+                int from = CheckExistAccount(dep, "\nНомер счёта с которого осуществляется перевод:\n");
+                int to = CheckExistAccount(dep, "\nНомер счёта на который осуществляется перевод:\n");
+                int money = CheckMoney();
+
+                string valuta = CheckValuta();
+
+                Transaction transFrom = new Transaction(from, to, money, valuta);
+                Transaction transTo = new Transaction(from, to, money, valuta);
+
+                foreach (Bank bank in dep.Banks)
+                {
+
+                    foreach (Client client in bank.Clients)
+                    {
+                        foreach (Account account in client.Accounts)
+                        {
+                            
+                            if ((account.IDAccount == from))
+                            {                                
+                                account.Balance = account.Balance - money;
+                                Console.WriteLine($"\nСо счёта (№{from} - {bank.Name}) переведено {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
+                                transFrom.Name = "Списание";
+                                bank.LogTrans.Add(transFrom);                                
+                            }
+
+                            if (account.IDAccount == to)
+                            {
+                                account.Balance = account.Balance + money;
+                                Console.WriteLine($"\nНа счёт (№{to} - {bank.Name}) поступило {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
+                                transTo.Name = "Зачисление";
+                                bank.LogTrans.Add(transTo);
+                            }                                                                                     
+                        }
+                    }
+                }
+            }
+
+
+
             public void ItemDeposit(ControlBank dep)
             {
                 
@@ -712,9 +742,7 @@ namespace HomeWork1
 
                 int money = CheckMoney();
 
-                Console.WriteLine("\nВалюта (RUB, USD, EUR):\n");
-                string valuta = Console.ReadLine();
-                Console.Clear();
+                string valuta = CheckValuta();
 
                 foreach (Bank bank in dep.Banks)
                 {
@@ -943,6 +971,33 @@ namespace HomeWork1
                 }                                
                 
                 return false;
+            }
+
+            // Проверяет корректность значения.
+            public string CheckValuta()
+            {
+                string valuta = "";
+                bool isExist = false;
+
+                while (!isExist)
+                {
+                    Console.WriteLine("\nВведите валюту счёта (RUB, USD, EUR):\n");
+                    valuta = Console.ReadLine();                    
+
+                    if ((valuta == "RUB") || (valuta == "USD") || (valuta == "EUR"))
+                    {
+                        isExist = true;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("\nВведён неверный формат.");
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                    }
+                }
+
+                Console.Clear();
+                return valuta;
             }
 
         }
