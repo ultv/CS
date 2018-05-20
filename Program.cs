@@ -668,23 +668,39 @@ namespace HomeWork1
 
                     foreach (Client client in bank.Clients)
                     {
-                        foreach(Account account in client.Accounts)
-                        {
-                            if(account.IDAccount == from)
+
+                        foreach (Account account in client.Accounts)
+                        {                            
+                            if ((account.IDAccount == from))
                             {
-                                account.Balance = account.Balance - money;
-                                Console.WriteLine($"\nСо счёта (№{from} - {bank.Name}) переведено {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
-                                transFrom.Name = "Списание";
-                                bank.LogTrans.Add(transFrom);
-                            }
-                            if (account.IDAccount == to)
-                            {
-                                account.Balance = account.Balance + money;
-                                Console.WriteLine($"\nНа счёт (№{to} - {bank.Name}) поступило {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
-                                transTo.Name = "Зачисление";
-                                bank.LogTrans.Add(transTo);                                                                
-                            }
-                        }
+                                // Запрещаем нулевой и отрицательный баланс.
+                                if (account.Balance > money)
+                                {
+                                    account.Balance = account.Balance - money;
+                                    Console.WriteLine($"\nСо счёта (№{from} - {bank.Name}) переведено {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
+                                    transFrom.Name = "Списание";
+                                    bank.LogTrans.Add(transFrom);
+
+                                    foreach (Account acnt in client.Accounts)
+                                    {
+                                        if (acnt.IDAccount == to)
+                                        {
+                                            acnt.Balance = acnt.Balance + money;
+                                            Console.WriteLine($"\nНа счёт (№{to} - {bank.Name}) поступило {money} {valuta}. Баланс {acnt.Balance} {acnt.Valuta}.");
+                                            transTo.Name = "Зачисление";
+                                            bank.LogTrans.Add(transTo);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    Console.WriteLine($"\nНедостаточно средств на счету клиента. Операция не завершена.");
+                                    Console.ForegroundColor = ConsoleColor.Gray;
+                                }
+                                
+                            }                         
+                        }                        
                     }
                 }
             }
