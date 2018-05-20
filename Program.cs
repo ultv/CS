@@ -382,25 +382,55 @@ namespace HomeWork1
             // Пункт меню - Открытие нового отделения банка.
             public void ItemOpenBank(ControlBank dep)
             {
+                
+                // Запретим открытие банков с одинаковым названием.
+                bool isExist = false;
+                string bankName = "";
 
+                while (!isExist)
+                {
+                    Console.WriteLine("\nВведите название банка:\n");
+                    bankName = Console.ReadLine();
+                    if (!IsExistBank(dep, bankName))
+                    {
+                        isExist = true;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("\nБанк с таким названием уже зарегистрирован:");
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                    }
+                }
+                
+                // Корректность номера банка.
                 int idBank = 0;
-                bool ok = false;
+                bool isCorrect = false;
 
-                Console.WriteLine("\nВведите название банка:\n");
-                string bankName = Console.ReadLine();                
-
-                while (!ok)
+                while (!isCorrect)
                 {
                     Console.WriteLine("\nВведите номер отделения:\n");
                     try
                     {
                         idBank = Int32.Parse(Console.ReadLine());
-                        ok = true;
+                        if (idBank <= 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine($"\nНомер банка должен иметь положительное значение.");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                        }
+                        else
+                        {
+                            isCorrect = true;
+                        }
+                        
                     }
                     catch
                     {
-                        Console.WriteLine("\nНомер банка - числовое значение. Повторите ввод:\n");
-                        ok = false;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("\nНомер банка должен быть числовым значением. Повторите ввод:\n");
+                        Console.ForegroundColor = ConsoleColor.Gray;                        
+                        isCorrect = false;
                     }
                 }
 
@@ -417,8 +447,8 @@ namespace HomeWork1
             // Пункт меню - Регистрация клиента.
             public void ItemRegClient(ControlBank dep)
             {
-                Console.WriteLine("\nВведите название банка:\n");
-                string bankName = Console.ReadLine();
+
+                string bankName = CheckExistBank(dep);
 
                 Console.WriteLine("\nВведите имя клиента:\n");
                 string firstName = Console.ReadLine();
@@ -465,8 +495,7 @@ namespace HomeWork1
             public void ItemOpenAccount(ControlBank dep)
             {
 
-                Console.WriteLine("\nВведите название банка:\n");
-                string bankName = Console.ReadLine();
+                string bankName = CheckExistBank(dep);
 
                 Console.WriteLine("\nВведите имя клиента:\n");
                 string firstName = Console.ReadLine();
@@ -801,6 +830,44 @@ namespace HomeWork1
                 }
                                     
                 return money;
+            }
+
+            // Возвращает истину если банк существует.
+            public bool IsExistBank(ControlBank dep, string bankName)
+            {
+                foreach (Bank bank in dep.Banks)
+                {                    
+                    if (bankName == bank.Name)
+                    {
+                        return true;
+                    }                        
+                }
+
+                return false;
+            }
+
+            public string CheckExistBank(ControlBank dep)
+            {
+                bool isExist = false;
+                string bankName = "";
+
+                while (!isExist)
+                {
+                    Console.WriteLine("\nВведите название банка:\n");
+                    bankName = Console.ReadLine();
+                    if(IsExistBank(dep, bankName))
+                    {
+                        isExist = true;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("\nБанк с таким названием не существует:");
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                    }
+                }                
+
+                return bankName;
             }
 
         }
