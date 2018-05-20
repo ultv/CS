@@ -483,8 +483,17 @@ namespace HomeWork1
                     try
                     {
                         idAccount = Int32.Parse(Console.ReadLine());
-                        if (!IsExistAccount(dep, idAccount))
+
+                        if(idAccount <= 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine($"\nНомер счёта должен иметь положительное значение.");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                        }                    
+                        else if (!IsExistAccount(dep, idAccount))
+                        {
                             isCorrect = true;
+                        }                            
                         else
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
@@ -498,10 +507,9 @@ namespace HomeWork1
                         Console.WriteLine("\nНомер счёта должен содержать числовое значение:");
                         Console.ForegroundColor = ConsoleColor.Gray;
                     }                    
-                }                                
+                }
 
-                Console.WriteLine("\nВведите сумму:\n");
-                int money = Int32.Parse(Console.ReadLine());
+                int money = CheckMoney();
 
                 Console.WriteLine("\nВведите валюту счёта (RUB, USD, EUR):\n");
                 string valuta = Console.ReadLine();
@@ -529,8 +537,7 @@ namespace HomeWork1
 
             // Пункт меню - Показать счета клиента.
             public void ItemShowAccount(ControlBank dep)
-            {
-                
+            {                
                 Console.WriteLine("\nВведите имя клиента:\n");
                 string firstName = Console.ReadLine();
 
@@ -579,9 +586,8 @@ namespace HomeWork1
             {
                 int from = CheckExistAccount(dep, "\nНомер счёта с которого осуществляется перевод:\n");
                 int to = CheckExistAccount(dep, "\nНомер счёта на который осуществляется перевод:\n");
+                int money = CheckMoney();
 
-                Console.WriteLine("\nСумма перевода:\n");
-                int money = Int32.Parse(Console.ReadLine());
                 Console.WriteLine("\nВалюта (RUB, USD, EUR):\n");
                 string valuta = Console.ReadLine();
                 Console.Clear();
@@ -620,8 +626,8 @@ namespace HomeWork1
                 
                 int deposit = CheckExistAccount(dep, "\nНомер счёта для внесения средств:\n");
 
-                Console.WriteLine("\nСумма:\n");
-                int money = Int32.Parse(Console.ReadLine());
+                int money = CheckMoney();
+
                 Console.WriteLine("\nВалюта (RUB, USD, EUR):\n");
                 string valuta = Console.ReadLine();
                 Console.Clear();
@@ -732,8 +738,17 @@ namespace HomeWork1
                     try
                     {
                         idAccount = Int32.Parse(Console.ReadLine());
-                        if (IsExistAccount(dep, idAccount))
+
+                        if (idAccount <= 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine($"\nНомер счёта должен иметь положительное значение.");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                        }
+                        else if (IsExistAccount(dep, idAccount))
+                        {
                             isCorrect = true;
+                        }                            
                         else
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
@@ -750,6 +765,42 @@ namespace HomeWork1
                 }
 
                 return idAccount;
+            }
+
+            // Проверяем сумму на корректность введения.
+            public int CheckMoney()
+            {
+                bool isCorrect = false;
+                int money = 0;
+
+                while (!isCorrect)
+                {
+                    Console.WriteLine("\nВведите сумму:\n");
+
+                    try
+                    {
+                        money = Int32.Parse(Console.ReadLine());
+
+                        if (money > 0)
+                        {
+                            isCorrect = true;
+                        }                            
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("\nСумма должна иметь положительное значение:");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                        }
+                    }
+                    catch
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("\nСумма должна содержать числовое значение:");
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                    }
+                }
+                                    
+                return money;
             }
 
         }
