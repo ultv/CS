@@ -168,8 +168,8 @@ namespace HomeWork1
                 Console.WriteLine($"\n{bank.Name} зарегистрирован в системе управлениеями банками.");
             }
 
-            // Возвращает истину если файл не удаётся открыть.
-            public bool FileIsLocked(string path, FileAccess access)
+            // Возвращает истину если файл заблокирован.
+            public bool FileIsLockedNotFound(string path, FileAccess access)
             {
                 try
                 {
@@ -192,20 +192,46 @@ namespace HomeWork1
                     Console.WriteLine("\nОтсутствует файл BankSystem.json");
                     Console.WriteLine("\nДля восстановления информации обратитесь к администратору.");
                     Console.WriteLine("\nДанные будут сохраняться в новом файле.");
-                    Console.ForegroundColor = ConsoleColor.Gray;                    
+                    Console.ForegroundColor = ConsoleColor.Gray;
                     return true;
-                }                
+                }
             }
+
+            // Возвращает истину если файл не найден.
+            public bool FileIsLocked(string path, FileAccess access)
+            {
+                try
+                {
+                    FileStream fs = new FileStream(PATH + "BankSystem.json", FileMode.Open, FileAccess.ReadWrite);
+                    fs.Close();
+                    return false;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\nОтсутствует доступ к файлу BankSystem.json");
+                    Console.WriteLine("\nДанные будут сохранены в новом файле.");
+                    Console.WriteLine("\nДля восстановления информации обратитесь к администратору."); ;
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    return true;
+                }
+                catch (Exception)
+                {
+                   return false;
+                }
+            }
+
+
 
             // JSON
             // При каждом запуске делает "back" копию json файла.
-            // Если файл отсутствует или заблокирован - продолжит работу при сохранени создаст новый "locked" файл.
+            // Если файл отсутствует или заблокирован - обработает при сохранении.           
             public ControlBank LoadControlBank()
             {
                 DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(ControlBank));
                 ControlBank dep = new ControlBank();
 
-                if(!FileIsLocked(PATH + "BankSystem.json", FileAccess.ReadWrite))
+                if(!FileIsLockedNotFound(PATH + "BankSystem.json", FileAccess.ReadWrite))
                 {
                     File.Copy(PATH + "BankSystem.json", PATH + "back_" + DateTime.Now.ToFileTime() + "_BankSystem.json", true);
 
@@ -226,7 +252,8 @@ namespace HomeWork1
             }
 
             // JSON
-            // Если файл отсутствует или заблокирован сохраняет информацию в новый "locked" файл.
+            // Если файл отсутствует сохраняет в созданый новый файл.
+            // Если файл заблокирован сохраняет информацию в новый "locked" файл.
             public void SaveControlBank()
             {
                 DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(ControlBank));
@@ -893,7 +920,7 @@ namespace HomeWork1
 
             // Возвращает истину если банк существует.
             public bool IsExistBank(ControlBank dep, string bankName)
-            {
+            {                
                 foreach (Bank bank in dep.Banks)
                 {                    
                     if (bankName == bank.Name)
@@ -914,6 +941,10 @@ namespace HomeWork1
                 {
                     Console.WriteLine("\nВведите название банка:\n");
                     bankName = Console.ReadLine();
+
+                    if (bankName == "0")
+                        return bankName;
+
                     if(IsExistBank(dep, bankName))
                     {
                         isExist = true;
