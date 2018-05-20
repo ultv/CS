@@ -12,7 +12,9 @@ namespace HomeWork1
  
     class Program
     {
-        static string delimiter = "--------------------";        
+        static string delimiter = "--------------------";
+        static string PATH = Directory.GetCurrentDirectory() + "\\JSON\\";
+
     //    enum VALUTA { RUB, USD, EUR};
 
         // Счёт клиента.
@@ -168,38 +170,86 @@ namespace HomeWork1
                 Console.WriteLine($"\n{bank.Name} зарегистрирован в системе управлениеями банками.");
             }
 
+            // Возвращает истину если файл не удаётся открыть.
+            public bool FileIsLocked(string path, FileAccess access)
+            {
+                try
+                {
+                    FileStream fs = new FileStream(PATH + "BankSystem.json", FileMode.Open, FileAccess.ReadWrite);
+                    fs.Close();
+                    return false;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\nОтсутствует доступ к файлу BankSystem.json");
+                    Console.WriteLine("\nДанные будут сохранены в новом файле.");
+                    Console.WriteLine("\nДля восстановления информации обратитесь к администратору."); ;
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    return true;
+                }
+                catch (FileNotFoundException)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\nОтсутствует файл BankSystem.json");
+                    Console.WriteLine("\nДля восстановления информации обратитесь к администратору.");
+                    Console.WriteLine("\nДанные будут сохраняться в новом файле.");
+                    Console.ForegroundColor = ConsoleColor.Gray;                    
+                    return true;
+                }                
+            }
+
             // JSON
+            // При каждом запуске делает "back" копию json файла.
+            // Если файл отсутствует или заблокирован - продолжит работу при сохранени создаст новый "locked" файл.
             public ControlBank LoadControlBank()
             {
                 DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(ControlBank));
                 ControlBank dep = new ControlBank();
 
-                using (FileStream fs = new FileStream("BankSystem.json", FileMode.Open))
+                if(!FileIsLocked(PATH + "BankSystem.json", FileAccess.ReadWrite))
                 {
-                    try
-                    {
-                        dep = (ControlBank)jsonFormatter.ReadObject(fs);
-                    }
-                    catch
-                    {
+                    File.Copy(PATH + "BankSystem.json", PATH + "back_" + DateTime.Now.ToFileTime() + "_BankSystem.json", true);
 
-                    }                    
+                    using (FileStream fs = new FileStream(PATH + "BankSystem.json", FileMode.Open))
+                    {
+                        try
+                        {
+                            dep = (ControlBank)jsonFormatter.ReadObject(fs);
+                        }
+                        catch
+                        {
+
+                        }
+                    }                
                 }
 
                 return dep;
-            }           
+            }
 
             // JSON
+            // Если файл отсутствует или заблокирован сохраняет информацию в новый "locked" файл.
             public void SaveControlBank()
             {
                 DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(ControlBank));
 
-                using (FileStream fs = new FileStream("BankSystem.json", FileMode.OpenOrCreate))
-                {                    
-                    jsonFormatter.WriteObject(fs, this);                    
+                if (!FileIsLocked(PATH + "BankSystem.json", FileAccess.ReadWrite))
+                {
+                    using (FileStream fs = new FileStream(PATH + "BankSystem.json", FileMode.OpenOrCreate))
+                    {
+                        jsonFormatter.WriteObject(fs, this);
+                    }
+                }
+                else
+                {
+                    using (FileStream fs = new FileStream(PATH + "locked_" + DateTime.Now.ToFileTime() + "_BankSystem.json", FileMode.OpenOrCreate))
+                    {
+                        jsonFormatter.WriteObject(fs, this);
+                    }                  
                 }
             }
 
+            // Выводит список банков зарегистрированных в системе.
             public void ShowBanks()
             {
                 Console.Clear();          
