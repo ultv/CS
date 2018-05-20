@@ -75,6 +75,8 @@ namespace HomeWork1
             [DataMember]
             public DateTime DateTransaction;
             [DataMember]
+            public string Name { get; set; }
+            [DataMember]
             public int FromAccount { get; set; }
             [DataMember]
             public int ToAccount { get; set; }
@@ -415,7 +417,7 @@ namespace HomeWork1
                 Console.WriteLine("\nВведите сумму:\n");
                 int money = Int32.Parse(Console.ReadLine());
 
-                Console.WriteLine("\nВведите валюту счёта:\n");
+                Console.WriteLine("\nВведите валюту счёта (RUB, USD, EUR):\n");
                 string valuta = Console.ReadLine();
                 Console.Clear();
 
@@ -463,6 +465,7 @@ namespace HomeWork1
                 }
             }
 
+            // Пункт меню - показать информацию по банкам, клиентам и счетам.
             public void ItemShowDetail(ControlBank dep)
             {
                 Console.Clear();
@@ -482,6 +485,7 @@ namespace HomeWork1
                 }
             }
 
+            // Пункт - меню осуществить перевод
             public void ItemTransfer(ControlBank dep)
             {
                 Console.WriteLine("\nНомер счёта с которого осуществляется перевод:\n");
@@ -490,55 +494,84 @@ namespace HomeWork1
                 int to = Int32.Parse(Console.ReadLine());
                 Console.WriteLine("\nСумма перевода:\n");
                 int money = Int32.Parse(Console.ReadLine());
-                Console.WriteLine("\nВалюта:\n");
+                Console.WriteLine("\nВалюта (RUB, USD, EUR):\n");
                 string valuta = Console.ReadLine();
                 Console.Clear();
 
-                Transaction trans = new Transaction(from, to, money, valuta);
+                Transaction transFrom = new Transaction(from, to, money, valuta);
+                Transaction transTo = new Transaction(from, to, money, valuta);
 
                 foreach (Bank bank in dep.Banks)
-                {
-                    foreach(Client client in bank.Clients)
+                {                    
+
+                    foreach (Client client in bank.Clients)
                     {
                         foreach(Account account in client.Accounts)
                         {
                             if(account.IDAccount == from)
                             {
                                 account.Balance = account.Balance - money;
-                                Console.WriteLine($"\nСо счёта №{from} переведено {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
-                                bank.LogTrans.Add(trans);
+                                Console.WriteLine($"\nСо счёта (№{from} - {bank.Name}) переведено {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
+                                transFrom.Name = "Списание";
+                                bank.LogTrans.Add(transFrom);
                             }
                             if (account.IDAccount == to)
                             {
                                 account.Balance = account.Balance + money;
-                                Console.WriteLine($"\nНа счёт №{to} поступило {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
-                                if(from != to)
-                                {
-                                    bank.LogTrans.Add(trans);
-                                }
-                                
+                                Console.WriteLine($"\nНа счёт (№{to} - {bank.Name}) поступило {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
+                                transTo.Name = "Зачисление";
+                                bank.LogTrans.Add(transTo);                                                                
                             }
                         }
                     }
                 }
             }
 
+            // Показать историю операций.
             public void ItemShowLogTrans(ControlBank dep)
             {
                 Console.Clear();
 
                 foreach (Bank bank in dep.Banks)
                 {
-                    Console.WriteLine($"\n{bank.Name}:");
+                    Console.WriteLine($"\n{bank.Name}. Отделение №{bank.IDBank}:");
 
                     foreach(Transaction trans in bank.LogTrans)
-                    {
-                        Console.WriteLine($"\n{trans.DateTransaction.ToLongDateString()} {trans.DateTransaction.ToShortTimeString()}" +
-                            $" со счёта №{trans.FromAccount} на счёт №{trans.ToAccount} переведено {trans.Money} {trans.Valuta}.");
+                    {                     
+
+                        if (trans.Name == "Списание")
+                        {
+                            string toBank = FindBankByAccount(dep, trans.ToAccount);
+                            Console.WriteLine($"\n\t{trans.DateTransaction.ToLongDateString()} {trans.DateTransaction.ToShortTimeString()}");
+                            Console.WriteLine($"\n\tСо счёта №{trans.FromAccount} переведено {trans.Money} {trans.Valuta} на счёт (№{trans.ToAccount} - {toBank}).");
+                        }
+                        else if (trans.Name == "Зачисление")
+                        {
+                            string fromBank = FindBankByAccount(dep, trans.FromAccount);
+                            Console.WriteLine($"\n\t{trans.DateTransaction.ToLongDateString()} {trans.DateTransaction.ToShortTimeString()}");
+                            Console.WriteLine($"\n\tНа счёт №{trans.ToAccount} поступило {trans.Money} {trans.Valuta} со счёта (№{trans.FromAccount} - {fromBank}).");
+                        }                                                                                                         
                     }
                 }
             }
 
+            // Найти банк по номеру счёта.
+            public string FindBankByAccount(ControlBank dep, int account)
+            {
+                foreach(Bank bank in dep.Banks)
+                {
+                    foreach(Client client in bank.Clients)
+                    {
+                        foreach(Account acnt in client.Accounts)
+                        {
+                            if (account == acnt.IDAccount)
+                                return bank.Name;
+                        }
+                    }
+                }
+
+                return "";
+            }
 
         }
 
