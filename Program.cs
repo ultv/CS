@@ -473,9 +473,32 @@ namespace HomeWork1
 
                 Console.WriteLine("\nВведите фамилию клиента:\n");
                 string surName = Console.ReadLine();
-
-                Console.WriteLine("\nВведите номер счёта:\n");
-                int idAccount = Int32.Parse(Console.ReadLine());
+                
+                // Проверяем номер счёта на уникальность и корректность.
+                int idAccount = 0;
+                bool isCorrect = false;
+                while (!isCorrect)
+                {
+                    Console.WriteLine("\nВведите номер счёта:\n");
+                    try
+                    {
+                        idAccount = Int32.Parse(Console.ReadLine());
+                        if (!IsExistAccount(dep, idAccount))
+                            isCorrect = true;
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine($"\nСчёт №{idAccount} уже существует.");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                        }                            
+                    }
+                    catch
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("\nНомер счёта должен содержать числовое значение:");
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                    }                    
+                }                                
 
                 Console.WriteLine("\nВведите сумму:\n");
                 int money = Int32.Parse(Console.ReadLine());
@@ -554,10 +577,9 @@ namespace HomeWork1
             // Пункт - меню осуществить перевод
             public void ItemTransfer(ControlBank dep)
             {
-                Console.WriteLine("\nНомер счёта с которого осуществляется перевод:\n");
-                int from = Int32.Parse(Console.ReadLine());
-                Console.WriteLine("\nНомер счёта на который осуществляется перевод:\n");
-                int to = Int32.Parse(Console.ReadLine());
+                int from = CheckExistAccount(dep, "\nНомер счёта с которого осуществляется перевод:\n");
+                int to = CheckExistAccount(dep, "\nНомер счёта на который осуществляется перевод:\n");
+
                 Console.WriteLine("\nСумма перевода:\n");
                 int money = Int32.Parse(Console.ReadLine());
                 Console.WriteLine("\nВалюта (RUB, USD, EUR):\n");
@@ -594,9 +616,10 @@ namespace HomeWork1
             }
 
             public void ItemDeposit(ControlBank dep)
-            {                
-                Console.WriteLine("\nНомер счёта для внесения средств:\n");
-                int deposit = Int32.Parse(Console.ReadLine());
+            {
+                
+                int deposit = CheckExistAccount(dep, "\nНомер счёта для внесения средств:\n");
+
                 Console.WriteLine("\nСумма:\n");
                 int money = Int32.Parse(Console.ReadLine());
                 Console.WriteLine("\nВалюта (RUB, USD, EUR):\n");
@@ -605,7 +628,6 @@ namespace HomeWork1
 
                 foreach (Bank bank in dep.Banks)
                 {
-
                     foreach (Client client in bank.Clients)
                     {
                         foreach (Account account in client.Accounts)
@@ -678,6 +700,56 @@ namespace HomeWork1
                 }
 
                 return "";
+            }
+
+            // Возвращает истину если счёт существует.
+            public bool IsExistAccount(ControlBank dep,  int account)
+            {
+                foreach (Bank bank in dep.Banks)
+                {
+                    foreach (Client client in bank.Clients)
+                    {
+                        foreach (Account acnt in client.Accounts)
+                        {
+                            if (account == acnt.IDAccount)
+                                return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+
+
+            // Проверяет наличие счёта и корректность введения.
+            public int CheckExistAccount(ControlBank dep, string message)
+            {                
+                int idAccount = 0;
+                bool isCorrect = false;
+                while (!isCorrect)
+                {
+                    Console.WriteLine(message);
+                    try
+                    {
+                        idAccount = Int32.Parse(Console.ReadLine());
+                        if (IsExistAccount(dep, idAccount))
+                            isCorrect = true;
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine($"\nСчёт №{idAccount} не существует.");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                        }
+                    }
+                    catch
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("\nНомер счёта должен содержать числовое значение:");
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                    }
+                }
+
+                return idAccount;
             }
 
         }
