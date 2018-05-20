@@ -298,15 +298,19 @@ namespace HomeWork1
 
                             if ((choice < 0) || (choice > 9))
                             {
-                                correctIn = false;
+                                correctIn = false;                                
+                                Console.ForegroundColor = ConsoleColor.Red;
                                 Console.WriteLine("\nНеверное значение. Повторите ввод:\n");
+                                Console.ForegroundColor = ConsoleColor.Gray;
                             }
                             else correctIn = true;
                         }
                         catch
                         {
-                            correctIn = false;
+                            correctIn = false;                            
+                            Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("\nНеверное значение. Повторите ввод:\n");
+                            Console.ForegroundColor = ConsoleColor.Gray;
                         }
                                                
                     }
@@ -636,64 +640,6 @@ namespace HomeWork1
             }
 
             // Пункт - меню осуществить перевод
-            public void _ItemTransfer(ControlBank dep)
-            {
-                int from = CheckExistAccount(dep, "\nНомер счёта с которого осуществляется перевод:\n");
-                int to = CheckExistAccount(dep, "\nНомер счёта на который осуществляется перевод:\n");
-                int money = CheckMoney();
-
-                string valuta = CheckValuta();
-
-                Transaction transFrom = new Transaction(from, to, money, valuta);
-                Transaction transTo = new Transaction(from, to, money, valuta);
-
-                foreach (Bank bank in dep.Banks)
-                {                    
-
-                    foreach (Client client in bank.Clients)
-                    {
-
-                        foreach (Account account in client.Accounts)
-                        {                            
-                            if ((account.IDAccount == from))
-                            {
-                                // Запрещаем нулевой и отрицательный баланс.
-                                if (account.Balance > money)
-                                {
-                                    account.Balance = account.Balance - money;
-                                    Console.WriteLine($"\nСо счёта (№{from} - {bank.Name}) переведено {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
-                                    transFrom.Name = "Списание";
-                                    bank.LogTrans.Add(transFrom);
-
-                                    foreach (Account acnt in client.Accounts)
-                                    {
-                                        if (acnt.IDAccount == to)
-                                        {
-                                            acnt.Balance = acnt.Balance + money;
-                                            Console.WriteLine($"\nНа счёт (№{to} - {bank.Name}) поступило {money} {valuta}. Баланс {acnt.Balance} {acnt.Valuta}.");
-                                            transTo.Name = "Зачисление";
-                                            bank.LogTrans.Add(transTo);
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine($"\nНедостаточно средств на счету клиента. Операция не завершена.");
-                                    Console.ForegroundColor = ConsoleColor.Gray;
-                                }
-                                
-                            }                         
-                        }                        
-                    }
-                }
-            }
-
-
-
-
-
-            // Пункт - меню осуществить перевод
             public void ItemTransfer(ControlBank dep)
             {
                 int from = CheckExistAccount(dep, "\nНомер счёта с которого осуществляется перевод:\n");
@@ -702,37 +648,67 @@ namespace HomeWork1
 
                 string valuta = CheckValuta();
 
-                Transaction transFrom = new Transaction(from, to, money, valuta);
-                Transaction transTo = new Transaction(from, to, money, valuta);
-
-                foreach (Bank bank in dep.Banks)
+                // Запрещаем нулевой и отрицательный баланс.
+                if (CheckBalance(dep, from, money))
                 {
+                    Transaction transFrom = new Transaction(from, to, money, valuta);
+                    Transaction transTo = new Transaction(from, to, money, valuta);
 
-                    foreach (Client client in bank.Clients)
+                    foreach (Bank bank in dep.Banks)
                     {
-                        foreach (Account account in client.Accounts)
-                        {
-                            
-                            if ((account.IDAccount == from))
-                            {                                
-                                account.Balance = account.Balance - money;
-                                Console.WriteLine($"\nСо счёта (№{from} - {bank.Name}) переведено {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
-                                transFrom.Name = "Списание";
-                                bank.LogTrans.Add(transFrom);                                
-                            }
 
-                            if (account.IDAccount == to)
+                        foreach (Client client in bank.Clients)
+                        {
+                            foreach (Account account in client.Accounts)
                             {
-                                account.Balance = account.Balance + money;
-                                Console.WriteLine($"\nНа счёт (№{to} - {bank.Name}) поступило {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
-                                transTo.Name = "Зачисление";
-                                bank.LogTrans.Add(transTo);
-                            }                                                                                     
+
+                                if (account.IDAccount == from)
+                                {
+                                    account.Balance = account.Balance - money;
+                                    Console.WriteLine($"\nСо счёта (№{from} - {bank.Name}) переведено {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
+                                    transFrom.Name = "Списание";
+                                    bank.LogTrans.Add(transFrom);
+                                }
+
+                                if (account.IDAccount == to)
+                                {
+                                    account.Balance = account.Balance + money;
+                                    Console.WriteLine($"\nНа счёт (№{to} - {bank.Name}) поступило {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
+                                    transTo.Name = "Зачисление";
+                                    bank.LogTrans.Add(transTo);
+                                }
+                            }
                         }
                     }
                 }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"\nНедостаточно средств на счету клиента. Операция не завершена.");
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                }
             }
 
+
+            public bool CheckBalance(ControlBank dep, int from, int money)
+            {
+                foreach (Bank bank in dep.Banks)
+                {
+                    foreach(Client client in bank.Clients)
+                    {
+                        foreach(Account account in client.Accounts)
+                        {
+                            if (account.IDAccount == from)
+                            {
+                                if (account.Balance > money)
+                                    return true;
+                            }
+                        }
+                    }
+                }
+
+                return false;
+            }
 
 
             public void ItemDeposit(ControlBank dep)
