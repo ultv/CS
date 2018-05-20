@@ -13,7 +13,8 @@ namespace HomeWork1
     class Program
     {
         static string delimiter = "--------------------";
-        static string PATH = Directory.GetCurrentDirectory() + "\\JSON\\";        
+        // static string PATH = Directory.GetCurrentDirectory() + "\\JSON\\";
+        static string PATH = "";
 
         // Счёт клиента.
         [DataContract]
