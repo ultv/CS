@@ -229,15 +229,16 @@ namespace HomeWork1
                     Console.WriteLine($"\n{delimiter}{delimiter}");
                     Console.WriteLine("\nДоступные действия:");
                     Console.WriteLine($"\n{delimiter}{delimiter}");
-                    Console.WriteLine("\n1 - Показать банки.");
-                    Console.WriteLine("\n2 - Открыть новое отделение банка.");
-                    Console.WriteLine("\n3 - Зарегистрировать клиента.");
-                    Console.WriteLine("\n4 - Показать клиентов банка.");
-                    Console.WriteLine("\n5 - Открыть счёт.");
-                    Console.WriteLine("\n6 - Показать счета клиента.");
-                    Console.WriteLine("\n7 - Показать подробную инормацию.");
-                    Console.WriteLine("\n8 - Перевод средств.");
-                    Console.WriteLine("\n9 - История транзакций.");
+                    Console.WriteLine("\n1 - Показать банки / клиентов банка.");                    
+                    Console.WriteLine("\n2 - Показать счета клиента.");
+                    Console.WriteLine("\n3 - Показать: банки - клиенты - счета.");
+                    Console.WriteLine("\n4 - Показать историю транзакций.");
+                    Console.WriteLine($"\n{delimiter}{delimiter}");
+                    Console.WriteLine("\n5 - Открыть новое отделение банка.");
+                    Console.WriteLine("\n6 - Зарегистрировать клиента.");
+                    Console.WriteLine("\n7 - Открыть счёт.");
+                    Console.WriteLine("\n8 - Внесение средств.");
+                    Console.WriteLine("\n9 - Перевод средств.");
                     Console.WriteLine("\n0 - Выход.");
                     Console.WriteLine($"\n{delimiter}{delimiter}\n");
 
@@ -269,47 +270,47 @@ namespace HomeWork1
 
                         case 1:
                      
-                            dep.ShowBanks();                            
+                            ItemShowBanksClients(dep);                            
                             break;
 
                         case 2:
 
-                            ItemOpenBank(dep);
+                            ItemShowAccount(dep);
                             break;
 
                         case 3:
 
-                            ItemRegClient(dep);
+                            ItemShowDetail(dep);
                             break;
 
                         case 4:
 
-                            ItemShowClients(dep);
+                            ItemShowLogTrans(dep);
                             break;
 
                         case 5:
 
-                            ItemOpenAccount(dep);
+                            ItemOpenBank(dep);
                             break;
 
                         case 6:
 
-                            ItemShowAccount(dep);
+                            ItemRegClient(dep);
                             break;
 
                         case 7:
 
-                            ItemShowDetail(dep);
+                            ItemOpenAccount(dep);
                             break;
 
                         case 8:
-                            
-                            ItemTransfer(dep);
+
+                            ItemDeposit(dep);
                             break;
 
                         case 9:
 
-                            ItemShowLogTrans(dep);
+                            ItemTransfer(dep);
                             break;
 
                         case 0:
@@ -319,6 +320,13 @@ namespace HomeWork1
                             break;
                     }
                 }
+            }
+
+            public void ItemShowBanksClients(ControlBank dep)
+            {
+                dep.ShowBanks();
+                ItemShowClients(dep);
+
             }
 
             // Пункт меню - Открытие нового отделения банка.
@@ -385,17 +393,22 @@ namespace HomeWork1
             // Пункт меню - Показать клиентов.
             public void ItemShowClients(ControlBank dep)
             {
-                Console.WriteLine("\nВведите название банка:\n");
+                Console.WriteLine($"\n{delimiter}{delimiter}");
+                Console.WriteLine("\nВведите название банка для просмотра его клиентов: (0 - вернуться в меню)\n");
                 string bankName = Console.ReadLine();
-                Console.Clear();
-
-                foreach (Bank bank in dep.Banks)
+                if(bankName != "0")
                 {
-                    if (bank.Name == bankName)
+                    Console.Clear();
+
+                    foreach (Bank bank in dep.Banks)
                     {
-                        bank.ShowClients();
+                        if (bank.Name == bankName)
+                        {
+                            bank.ShowClients();
+                        }
                     }
                 }
+                
             }
 
             // Пункт меню - Открыть счёт.
@@ -431,6 +444,9 @@ namespace HomeWork1
                             {
                                 client.OpenAccount(idAccount, money, valuta);
                                 Console.WriteLine($"\n{firstName} {surName} открыл счёт №{idAccount} в {bankName}е.");
+                                Transaction deposit = new Transaction(0, idAccount, money, valuta);
+                                deposit.Name = "Открытие";
+                                bank.LogTrans.Add(deposit);
                             }
 
                         }
@@ -458,7 +474,7 @@ namespace HomeWork1
                             Console.WriteLine($"\n{client.firstName} {client.surName} владеет счетами в {bank.Name}е:");
                             foreach (Account account in client.Accounts)
                             {
-                                Console.WriteLine($"\nСчёт №{account.IDAccount}. Баланс {account.Balance} {account.Valuta}.");
+                                Console.WriteLine($"\n\tСчёт №{account.IDAccount}. Баланс {account.Balance} {account.Valuta}.");
                             }                            
                         }
                     }                    
@@ -527,6 +543,37 @@ namespace HomeWork1
                 }
             }
 
+            public void ItemDeposit(ControlBank dep)
+            {                
+                Console.WriteLine("\nНомер счёта для внесения средств:\n");
+                int deposit = Int32.Parse(Console.ReadLine());
+                Console.WriteLine("\nСумма:\n");
+                int money = Int32.Parse(Console.ReadLine());
+                Console.WriteLine("\nВалюта (RUB, USD, EUR):\n");
+                string valuta = Console.ReadLine();
+                Console.Clear();
+
+                foreach (Bank bank in dep.Banks)
+                {
+
+                    foreach (Client client in bank.Clients)
+                    {
+                        foreach (Account account in client.Accounts)
+                        {                            
+                            if (account.IDAccount == deposit)
+                            {
+                                Transaction transDeposit = new Transaction(0, deposit, money, valuta);
+                                account.Balance = account.Balance + money;
+                                Console.WriteLine($"\nНа счёт (№{deposit} - {bank.Name}) поступило {money} {valuta}. Баланс {account.Balance} {account.Valuta}.");
+                                transDeposit.Name = "Внесение";
+                                bank.LogTrans.Add(transDeposit);
+                            }
+                        }
+                    }
+                }
+
+            }
+
             // Показать историю операций.
             public void ItemShowLogTrans(ControlBank dep)
             {
@@ -550,7 +597,17 @@ namespace HomeWork1
                             string fromBank = FindBankByAccount(dep, trans.FromAccount);
                             Console.WriteLine($"\n\t{trans.DateTransaction.ToLongDateString()} {trans.DateTransaction.ToShortTimeString()}");
                             Console.WriteLine($"\n\tНа счёт №{trans.ToAccount} поступило {trans.Money} {trans.Valuta} со счёта (№{trans.FromAccount} - {fromBank}).");
-                        }                                                                                                         
+                        }
+                        else if (trans.Name == "Внесение")
+                        {
+                            Console.WriteLine($"\n\t{trans.DateTransaction.ToLongDateString()} {trans.DateTransaction.ToShortTimeString()}");
+                            Console.WriteLine($"\n\tНа счёт №{trans.ToAccount} внесено {trans.Money} {trans.Valuta}.");
+                        }
+                        else if (trans.Name == "Открытие")
+                        {
+                            Console.WriteLine($"\n\t{trans.DateTransaction.ToLongDateString()} {trans.DateTransaction.ToShortTimeString()}");
+                            Console.WriteLine($"\n\tНа счёт №{trans.ToAccount} при открытии внесено {trans.Money} {trans.Valuta}.");
+                        }
                     }
                 }
             }
@@ -580,7 +637,7 @@ namespace HomeWork1
         static void Main(string[] args)
         {
             Console.Clear();
-            Console.WindowHeight = 50;
+            Console.WindowHeight = 72;
 
             ControlBank departament = new ControlBank();
 
